@@ -1,0 +1,10 @@
+# terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+crash.log
+override.tf
+override.tf.json
+*.tfvars
+!env/dev.tfvars    # keep this in repo if you want, or remove this line
+.terraform.lock.hcl
