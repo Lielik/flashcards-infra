@@ -1,20 +1,26 @@
-# ==========================================================
+# ==============================================================
 # modules/network/outputs.tf
 # ----------------------------------------------------------
 # Exposes core networking identifiers to root and other modules.
-# ==========================================================
+# ==============================================================
 
+# -----------------------------
+# VPC Output
+# -----------------------------
 output "vpc_id" {
-  description = "ID of the created VPC"
-  value       = aws_vpc.this.id
+  description = "ID of the VPC"
+  value       = aws_vpc.main.id
 }
 
+# -----------------------------
+# Subnet Outputs
+# -----------------------------
 output "public_subnet_ids" {
-  description = "IDs of the public subnets"
+  description = "List of public subnet IDs"
   value       = [for s in aws_subnet.public : s.id]
 }
 
 output "private_subnet_ids" {
-  description = "IDs of the private subnets"
+  description = "List of private subnet IDs"
   value       = [for s in aws_subnet.private : s.id]
 }

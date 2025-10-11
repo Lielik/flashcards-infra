@@ -8,27 +8,27 @@
 
 
 # -----------------------------
-# Project & Environment
+# 1. Project & Environment Metadata
 # -----------------------------
 
 variable "project" {
-  description = "Project name (e.g., flashcards)"
+  description = "Project name (used for naming & tagging)"
   type        = string
 }
 
 variable "env" {
-  description = "Deployment environment (e.g., dev, staging, prod)"
+  description = "Deployment environment (e.g. dev, staging, prod)"
   type        = string
 }
 
 variable "region" {
-  description = "AWS region (e.g., eu-central-1)"
+  description = "AWS region for resource creation"
   type        = string
 }
 
 
 # -----------------------------
-# Networking
+# 2. Networking / VPC Configuration
 # -----------------------------
 
 variable "vpc_cidr" {
@@ -37,36 +37,45 @@ variable "vpc_cidr" {
 
   validation {
     condition     = can(cidrnetmask(var.vpc_cidr))
-    error_message = "vpc_cidr must be a valid CIDR, e.g., 10.0.0.0/16."
+    error_message = "vpc_cidr must be a valid CIDR, e.g. 10.0.0.0/16"
   }
 }
 
 
 # -----------------------------
-# EKS Node Group
+# 3. EKS Node Group Configuration
 # -----------------------------
 
 variable "instance_types" {
-  description = "List of EC2 instance types for the EKS node group"
+  description = "List of EC2 instance types for your EKS nodes"
   type        = list(string)
 }
 
 variable "desired_size" {
-  description = "Desired number of worker nodes in the EKS node group"
+  description = "Desired number of worker nodes"
   type        = number
 }
 
 variable "min_size" {
-  description = "Minimum number of worker nodes"
+  description = "Minimum number of worker nodes for auto-scaling"
   type        = number
 }
 
 variable "max_size" {
-  description = "Maximum number of worker nodes"
+  description = "Maximum number of worker nodes for auto-scaling"
   type        = number
 }
 
 variable "capacity_type" {
-  description = "Capacity type for EKS nodes (ON_DEMAND or SPOT)"
+  description = "Capacity type for your node group (ON_DEMAND or SPOT)"
+  type        = string
+}
+
+# -----------------------------
+# 4. ECR Repository (existing)
+# -----------------------------
+
+variable "ecr_repository_name" {
+  description = "Name of an existing ECR repository to use"
   type        = string
 }

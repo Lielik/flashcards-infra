@@ -1,23 +1,22 @@
 # ==========================================================
 # outputs.tf
 # ----------------------------------------------------------
-# Centralized list of all Terraform outputs.
-#
 # Responsibilities:
 #   - Expose key identifiers and connection details from all modules
 #   - Provide ready-to-run convenience commands for interacting
 #     with the EKS cluster and verifying the deployment
 #
-# Sections:
-#   1. Networking
-#   2. Platform (EKS + IAM)
-#   3. Registry (ECR)
-#   4. Convenience Commands
 # ==========================================================
 
 
+# ==========================================================
+# outputs.tf
+# ----------------------------------------------------------
+# Root-level outputs: networking, EKS, IAM, ECR, commands
+# ==========================================================
+
 # -----------------------------
-# 1. Networking
+# 1. Networking Outputs
 # -----------------------------
 
 output "vpc_id" {
@@ -26,90 +25,81 @@ output "vpc_id" {
 }
 
 output "public_subnet_ids" {
-  description = "IDs of the public subnets"
+  description = "IDs of public subnets"
   value       = module.network.public_subnet_ids
 }
 
 output "private_subnet_ids" {
-  description = "IDs of the private subnets"
+  description = "IDs of private subnets"
   value       = module.network.private_subnet_ids
 }
 
 
 # -----------------------------
-# 2. Platform (EKS + IAM)
+# 2. EKS / Cluster Outputs
 # -----------------------------
 
 output "eks_cluster_name" {
-  description = "EKS cluster name"
-  value       = module.platform.cluster_name
+  description = "Name of the EKS cluster"
+  value       = module.eks.cluster_name
 }
 
 output "eks_cluster_endpoint" {
-  description = "API server endpoint of the EKS cluster"
-  value       = module.platform.cluster_endpoint
+  description = "API endpoint of the EKS cluster"
+  value       = module.eks.cluster_endpoint
 }
 
 output "eks_cluster_ca" {
-  description = "Base64-encoded certificate authority data for the EKS cluster"
-  value       = module.platform.cluster_ca
+  description = "Base64-encoded certificate authority data for the cluster"
+  value       = module.eks.cluster_ca
 }
 
 output "node_group_name" {
   description = "Name of the managed node group"
-  value       = module.platform.node_group_name
+  value       = module.eks.node_group_name
 }
 
+
+# -----------------------------
+# 3. IAM Role Outputs
+# -----------------------------
+
 output "cluster_role_arn" {
-  description = "IAM role ARN used by the EKS control plane"
-  value       = module.platform.cluster_role_arn
+  description = "ARN of IAM role used by the EKS control plane"
+  value       = module.iam.cluster_role_arn
 }
 
 output "node_role_arn" {
-  description = "IAM role ARN used by EKS worker nodes"
-  value       = module.platform.node_role_arn
+  description = "ARN of IAM role used by the EKS worker nodes"
+  value       = module.iam.node_role_arn
 }
 
 
 # -----------------------------
-# 3. Registry (ECR)
+# 4. ECR / Repository Outputs
 # -----------------------------
 
 output "ecr_repository_url" {
-  description = "ECR repository URL for the Flashcards application"
-  value       = module.registry.repository_url
+  description = "URL of the existing ECR repository"
+  value       = data.aws_ecr_repository.existing.repository_url
 }
 
 output "ecr_repository_arn" {
-  description = "ECR repository ARN"
-  value       = module.registry.repository_arn
+  description = "ARN of the existing ECR repository"
+  value       = data.aws_ecr_repository.existing.arn
 }
 
 
 # -----------------------------
-# 4. Convenience Commands
+# 5. Convenience Commands
 # -----------------------------
 
 output "kubectl_update_kubeconfig_cmd" {
-  description = <<-EOT
-  Run this command to configure kubectl for the new EKS cluster.
-  It updates your local kubeconfig file with the cluster context.
-  EOT
-  value       = "aws eks update-kubeconfig --name ${module.platform.cluster_name} --region ${var.region}"
+  description = "Command to configure kubectl for your EKS cluster"
+  value       = "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region ${var.region}"
 }
 
 output "kubectl_smoke_test_cmd" {
-  description = <<-EOT
-  Simple verification command to confirm that your EKS nodes
-  are registered and the cluster is reachable.
-  EOT
+  description = "Quick command to check cluster node status"
   value       = "kubectl get nodes -o wide"
-}
-
-output "eks_describe_cmd" {
-  description = <<-EOT
-  Command to describe the EKS cluster using AWS CLI for debugging
-  or verification purposes.
-  EOT
-  value       = "aws eks describe-cluster --name ${module.platform.cluster_name} --region ${var.region} --query 'cluster.{name:name,endpoint:endpoint,version:version,status:status,oidc:identity.oidc.issuer}'"
 }

@@ -7,11 +7,9 @@
 # ==========================================================
 
 
-# -----------------------------
-# Terraform & Provider Versions
-# -----------------------------
 terraform {
-  required_version = ">= 1.5.0"
+  backend "s3" {
+  }
 
   required_providers {
     aws = {
@@ -19,22 +17,8 @@ terraform {
       version = "~> 5.60"
     }
   }
-
-  # -----------------------------
-  # Backend Configuration
-  # -----------------------------
-  # For now, use a local backend that writes to terraform.tfstate.
-  # In production, migrate this to S3 + DynamoDB for locking.
-  # -----------------------------
-  backend "local" {
-    path = "terraform.tfstate"
-  }
 }
 
-
-# -----------------------------
-# AWS Provider
-# -----------------------------
 provider "aws" {
   region = var.region
 }

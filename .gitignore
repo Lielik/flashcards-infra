@@ -1,10 +1,55 @@
-# terraform
-.terraform/
+# -----------------------------
+# Local Terraform directories & modules
+# -----------------------------
+**/.terraform/*
+**/.terraform/*
+
+# -----------------------------
+# State & backup files (contain sensitive info)
+# -----------------------------
 *.tfstate
+*.tfstate.*
 *.tfstate.backup
+
+# -----------------------------
+# Crash/logs
+# -----------------------------
 crash.log
+crash.*.log
+
+# -----------------------------
+# Terraform plan and override files
+# -----------------------------
+*.tfplan
 override.tf
 override.tf.json
+*_override.tf
+*_override.tf.json
+
+# -----------------------------
+# Variable files (often contain secrets)
+# -----------------------------
 *.tfvars
-!env/dev.tfvars    # keep this in repo if you want, or remove this line
-.terraform.lock.hcl
+*.tfvars.json
+# but you may want to version non-sensitive defaults separately
+
+# -----------------------------
+# CLI / config files
+# -----------------------------
+.terraformrc
+terraform.rc
+
+# -----------------------------
+# IDE / editor settings
+# -----------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# -----------------------------
+# OS files
+# -----------------------------
+Thumbs.db
+desktop.ini
