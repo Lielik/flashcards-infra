@@ -27,9 +27,9 @@ variable "region" {
 }
 
 
-# -----------------------------
-# 2. Networking / VPC Configuration
-# -----------------------------
+# --------------
+# 2. Networking 
+# --------------
 
 variable "vpc_cidr" {
   description = "CIDR block for the VPC (e.g., 10.0.0.0/16)"
@@ -39,6 +39,17 @@ variable "vpc_cidr" {
     condition     = can(cidrnetmask(var.vpc_cidr))
     error_message = "vpc_cidr must be a valid CIDR, e.g. 10.0.0.0/16"
   }
+}
+
+variable "az_count" {
+  description = "Number of availability zones to span"
+  type        = number
+  default     = 2
+}
+variable "enable_nat" {
+  description = "Whether to create NAT gateway for private subnets"
+  type        = bool
+  default     = false
 }
 
 

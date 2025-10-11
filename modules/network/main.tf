@@ -67,8 +67,8 @@ resource "aws_subnet" "public" {
   tags = merge(
     var.tags,
     {
-      Name                     = "${var.name}-public-${each.key}"
-      Tier                     = "public"
+      Name = "${var.name}-public-${each.key}"
+      Tier = "public"
       # Tag to designate this subnet as eligible for external load balancers
       "kubernetes.io/role/elb" = "1"
     }
@@ -85,8 +85,8 @@ resource "aws_subnet" "private" {
   tags = merge(
     var.tags,
     {
-      Name                             = "${var.name}-private-${each.key}"
-      Tier                             = "private"
+      Name = "${var.name}-private-${each.key}"
+      Tier = "private"
       # Tag to designate availability for internal load balancers
       "kubernetes.io/role/internal-elb" = "1"
     }
