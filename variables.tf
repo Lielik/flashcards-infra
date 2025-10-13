@@ -96,21 +96,11 @@ variable "ecr_repository_name" {
 # -----------------------------
 
 variable "gitops_repo_url" {
-  description = "URL of your GitOps repository where Kubernetes manifests are stored"
+  description = "GitOps repository URL (https or git)"
   type        = string
 }
 
 variable "gitops_repo_branch" {
-  description = "Git branch that ArgoCD should track for changes."
-  type        = string
-}
-
-variable "gitops_repo_path" {
-  description = "Path within the GitOps repository where Kubernetes manifests are located"
-  type        = string
-}
-
-variable "gitops_target_namespace" {
-  description = "Kubernetes namespace where your application will be deployed"
+  description = "Git branch to track for GitOps"
   type        = string
 }

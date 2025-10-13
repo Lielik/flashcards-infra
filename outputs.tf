@@ -93,34 +93,14 @@ output "ecr_repository_arn" {
 # 5. ArgoCD Outputs
 # -----------------------------
 
-output "argocd_url" {
-  description = "URL to access the ArgoCD web UI"
-  value       = module.argocd.argocd_url
-}
-
-output "argocd_namespace" {
-  description = "Kubernetes namespace where ArgoCD is installed"
-  value       = module.argocd.argocd_namespace
-}
-
-output "argocd_admin_password_command" {
-  description = "Command to retrieve the initial ArgoCD admin password"
-  value       = module.argocd.argocd_initial_admin_password_command
-}
-
 output "gitops_repo_url" {
   description = "GitOps repository URL being synced by ArgoCD"
-  value       = module.argocd.gitops_repo_url
+  value       = var.gitops_repo_url
 }
 
 output "gitops_repo_branch" {
   description = "Git branch being tracked by ArgoCD"
-  value       = module.argocd.gitops_repo_branch
-}
-
-output "gitops_application_name" {
-  description = "Name of the ArgoCD Application"
-  value       = module.argocd.gitops_application_name
+  value       = var.gitops_repo_branch
 }
 
 # -----------------------------
@@ -145,4 +125,25 @@ output "kubectl_get_argocd_pods_command" {
 output "argocd_applications_command" {
   description = "Command to list ArgoCD applications"
   value       = "kubectl get applications -n ${module.argocd.argocd_namespace}"
+}
+
+output "argocd_login_command" {
+  description = "Command to login to ArgoCD CLI"
+  value       = "argocd login ${module.argocd.argocd_url} --insecure"
+}
+
+# -----------------------------
+# Summary Output
+# -----------------------------
+
+output "deployment_summary" {
+  description = "Summary of deployed infrastructure"
+  value = {
+    project     = var.project
+    environment = var.env
+    region      = var.region
+    cluster     = module.eks.cluster_name
+    argocd_url  = module.argocd.argocd_url
+    gitops_repo = var.gitops_repo_url
+  }
 }
