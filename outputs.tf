@@ -89,17 +89,60 @@ output "ecr_repository_arn" {
   value       = data.aws_ecr_repository.existing.arn
 }
 
+# -----------------------------
+# 5. ArgoCD Outputs
+# -----------------------------
+
+output "argocd_url" {
+  description = "URL to access the ArgoCD web UI"
+  value       = module.argocd.argocd_url
+}
+
+output "argocd_namespace" {
+  description = "Kubernetes namespace where ArgoCD is installed"
+  value       = module.argocd.argocd_namespace
+}
+
+output "argocd_admin_password_command" {
+  description = "Command to retrieve the initial ArgoCD admin password"
+  value       = module.argocd.argocd_initial_admin_password_command
+}
+
+output "gitops_repo_url" {
+  description = "GitOps repository URL being synced by ArgoCD"
+  value       = module.argocd.gitops_repo_url
+}
+
+output "gitops_repo_branch" {
+  description = "Git branch being tracked by ArgoCD"
+  value       = module.argocd.gitops_repo_branch
+}
+
+output "gitops_application_name" {
+  description = "Name of the ArgoCD Application"
+  value       = module.argocd.gitops_application_name
+}
 
 # -----------------------------
-# 5. Convenience Commands
+# 6. Convenience Commands
 # -----------------------------
 
-output "kubectl_update_kubeconfig_cmd" {
+output "kubectl_config_command" {
   description = "Command to configure kubectl for your EKS cluster"
   value       = "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region ${var.region}"
 }
 
-output "kubectl_smoke_test_cmd" {
-  description = "Quick command to check cluster node status"
+output "kubectl_get_nodes_command" {
+  description = "Command to check cluster node status"
   value       = "kubectl get nodes -o wide"
+}
+
+output "kubectl_get_argocd_pods_command" {
+  description = "Command to check ArgoCD pods"
+  value       = "kubectl get pods -n ${module.argocd.argocd_namespace}"
+}
+
+output "argocd_applications_command" {
+  description = "Command to list ArgoCD applications"
+  value       = "kubectl get applications -n ${module.argocd.argocd_namespace}"
 }

@@ -90,3 +90,27 @@ variable "ecr_repository_name" {
   description = "Name of an existing ECR repository to use"
   type        = string
 }
+
+# -----------------------------
+# 5. GitOps Repository Configuration
+# -----------------------------
+
+variable "gitops_repo_url" {
+  description = "URL of your GitOps repository where Kubernetes manifests are stored"
+  type        = string
+}
+
+variable "gitops_repo_branch" {
+  description = "Git branch that ArgoCD should track for changes."
+  type        = string
+}
+
+variable "gitops_repo_path" {
+  description = "Path within the GitOps repository where Kubernetes manifests are located"
+  type        = string
+}
+
+variable "gitops_target_namespace" {
+  description = "Kubernetes namespace where your application will be deployed"
+  type        = string
+}
