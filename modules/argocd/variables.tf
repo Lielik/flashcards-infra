@@ -44,3 +44,15 @@ variable "gitops_repo_branch" {
   type        = string
   default     = "main"
 }
+
+variable "gitops_repo_username" {
+  type        = string
+  description = "Username for HTTPS auth (use 'oauth2' for GitLab PAT)."
+  default     = "oauth2"
+}
+
+variable "gitops_repo_password" {
+  type        = string
+  description = "GitLab Personal Access Token (scope: read_repository)."
+  sensitive   = true
+}

@@ -79,6 +79,8 @@ module "argocd" {
   # Just point to the GitOps repo!
   gitops_repo_url    = var.gitops_repo_url
   gitops_repo_branch = var.gitops_repo_branch
+  gitops_repo_username = var.gitops_repo_username
+  gitops_repo_password = var.gitops_repo_password
 
   depends_on = [module.eks]
 }

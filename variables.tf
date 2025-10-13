@@ -104,3 +104,14 @@ variable "gitops_repo_branch" {
   description = "Git branch to track for GitOps"
   type        = string
 }
+
+variable "gitops_repo_password" {
+  type        = string
+  sensitive   = true
+  description = "GitLab PAT with read_repository scope."
+}
+
+variable "gitops_repo_username" {
+  type        = string
+  description = "Username for HTTPS auth (use 'oauth2' for GitLab PAT)."
+}

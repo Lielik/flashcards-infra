@@ -124,3 +124,28 @@ resource "null_resource" "bootstrap_app" {
     helm_release.argocd
   ]
 }
+
+resource "kubernetes_secret" "gitops_repo" {
+  metadata {
+    name      = "gitlab-flashcards-gitops"
+    namespace = var.namespace
+    labels = {
+      # This label tells Argo CD it's a repository connection
+      "argocd.argoproj.io/secret-type" = "repository"
+    }
+  }
+
+  # Keys must be: url, username, password (for HTTPS)
+  data = {
+    url      = var.gitops_repo_url
+    username = var.gitops_repo_username
+    password = var.gitops_repo_password
+  }
+
+  type = "Opaque"
+
+  # Make sure Argo CD is installed before we create the repo Secret
+  depends_on = [
+    helm_release.argocd
+  ]
+}
