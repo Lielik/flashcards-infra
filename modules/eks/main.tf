@@ -75,14 +75,18 @@ data "aws_iam_policy_document" "ebs_csi_driver" {
     effect = "Allow"
 
     principals {
-      type        = "Service"
-      identifiers = ["pods.eks.amazonaws.com"]
+      type        = "Federated"
+      identifiers = [aws_iam_openid_connect_provider.oidc_provider.arn] # or data.aws_iam_openid_connect_provider.oidc.arn if defined manually
     }
 
-    actions = [
-      "sts:AssumeRole",
-      "sts:TagSession"
-    ]
+
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.oidc_provider.arn, "https://", "")}:sub"
+      values   = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
+    }
   }
 }
 

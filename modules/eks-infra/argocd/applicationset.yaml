@@ -12,19 +12,37 @@ spec:
             gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
             path: flashcards
             wave: '0'
+          # --- Logging stack components ---
+          - name: elasticsearch
+            namespace: logging
+            gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
+            path: charts/logging/elasticsearch
+            wave: '-2'
+
+          - name: fluentbit
+            namespace: logging
+            gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
+            path: charts/logging/fluentbit
+            wave: '-1'
+
+          - name: kibana
+            namespace: logging
+            gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
+            path: charts/logging/kibana
+            wave: '0'
   template:
     metadata:
-      name: 'flashcards'
+      name: '{{name}}'
       annotations:
-        argocd.argoproj.io/sync-wave: '0'
+        argocd.argoproj.io/sync-wave: '{{wave}}'
     spec:
       project: default
       destination:
         server: https://kubernetes.default.svc
-        namespace: apps
+        namespace: '{{namespace}}'
       source:
-        repoURL: https://gitlab.com/portfolio5815640/flashcards-gitops.git
-        path: flashcards
+        repoURL: '{{gitRepo}}'
+        path: '{{path}}'
         targetRevision: 'main'
       syncPolicy:
         automated:
