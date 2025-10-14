@@ -9,7 +9,7 @@ spec:
         elements:
           - name: flashcards
             namespace: apps
-            gitRepo: https://github.com/danirdd92/flashcards-gitops.git
+            gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
             path: flashcards
             wave: '0'
   template:
@@ -23,7 +23,7 @@ spec:
         server: https://kubernetes.default.svc
         namespace: apps
       source:
-        repoURL: https://github.com/danirdd92/flashcards-gitops.git
+        repoURL: https://gitlab.com/portfolio5815640/flashcards-gitops.git
         path: flashcards
         targetRevision: 'main'
       syncPolicy:
