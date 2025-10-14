@@ -117,21 +117,6 @@ output "kubectl_get_nodes_command" {
   value       = "kubectl get nodes -o wide"
 }
 
-output "kubectl_get_argocd_pods_command" {
-  description = "Command to check ArgoCD pods"
-  value       = "kubectl get pods -n ${module.argocd.argocd_namespace}"
-}
-
-output "argocd_applications_command" {
-  description = "Command to list ArgoCD applications"
-  value       = "kubectl get applications -n ${module.argocd.argocd_namespace}"
-}
-
-output "argocd_login_command" {
-  description = "Command to login to ArgoCD CLI"
-  value       = "argocd login ${module.argocd.argocd_url} --insecure"
-}
-
 # -----------------------------
 # Summary Output
 # -----------------------------
@@ -143,7 +128,6 @@ output "deployment_summary" {
     environment = var.env
     region      = var.region
     cluster     = module.eks.cluster_name
-    argocd_url  = module.argocd.argocd_url
     gitops_repo = var.gitops_repo_url
   }
 }

@@ -17,19 +17,19 @@ terraform {
     # AWS provider for infrastructure provisioning
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.60"
+      version = "~> 6.16.0"
     }
 
     # Kubernetes provider for interacting with the EKS cluster
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.25"
+      version = "2.38.0"
     }
 
     # Helm provider for installing Helm charts (ArgoCD)
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 2.12"
+      version = "~> 3.0.2"
     }
 
     # Time provider for wait/sleep resources
@@ -83,11 +83,10 @@ provider "kubernetes" {
 # -----------------------------
 # This provider lets Terraform install and manage Helm charts (ArgoCD)
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = module.eks.cluster_endpoint
     cluster_ca_certificate = base64decode(module.eks.cluster_ca)
-
-    exec {
+    exec = {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "aws"
       args = [
@@ -100,4 +99,12 @@ provider "helm" {
       ]
     }
   }
+}
+
+
+# -----------------------------
+# Null Provider
+# -----------------------------
+# This provider is used for resources that perform actions locally (provisioners, triggers, etc.)
+provider "null" {
 }

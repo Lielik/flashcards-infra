@@ -62,14 +62,14 @@ data "aws_ecr_repository" "existing" {
 }
 
 # -----------------------------
-# ArgoCD Module
+# infra related services for eks
 # -----------------------------
-module "argocd" {
-  source = "./modules/argocd"
+module "eks-infra" {
+  source = "./modules/eks-infra"
 
-  name      = local.name_prefix
-  tags      = local.tags
-  namespace = "argocd"
+  name = local.name_prefix
+  tags = local.tags
+
 
   cluster_endpoint = module.eks.cluster_endpoint
   cluster_ca       = module.eks.cluster_ca
@@ -77,10 +77,15 @@ module "argocd" {
   aws_region       = var.region
 
   # Just point to the GitOps repo!
-  gitops_repo_url    = var.gitops_repo_url
-  gitops_repo_branch = var.gitops_repo_branch
+  gitops_repo_url      = var.gitops_repo_url
+  gitops_repo_branch   = var.gitops_repo_branch
   gitops_repo_username = var.gitops_repo_username
   gitops_repo_password = var.gitops_repo_password
 
   depends_on = [module.eks]
+
+  providers = {
+    kubernetes = kubernetes
+    helm       = helm
+  }
 }

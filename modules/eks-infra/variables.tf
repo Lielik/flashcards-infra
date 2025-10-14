@@ -8,12 +8,6 @@ variable "tags" {
   type        = map(string)
 }
 
-variable "namespace" {
-  description = "Kubernetes namespace for ArgoCD"
-  type        = string
-  default     = "argocd"
-}
-
 variable "cluster_endpoint" {
   description = "EKS cluster endpoint (dependency)"
   type        = string

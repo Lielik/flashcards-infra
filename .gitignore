@@ -53,3 +53,5 @@ terraform.rc
 # -----------------------------
 Thumbs.db
 desktop.ini
+
+**/certs/** 

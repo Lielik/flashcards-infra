@@ -5,7 +5,7 @@ ENV?=dev
 
 # make init
 init:
-	$(TF) init
+	$(TF) init -backend-config=env/dev.backend.hcl
 
 # make plan
 plan:
