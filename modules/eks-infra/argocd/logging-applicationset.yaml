@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: logging
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          # Wave 0: Elasticsearch first
+          - name: elasticsearch
+            namespace: logging
+            gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
+            path: platform/elasticsearch
+            wave: '0'
+          
+          # Wave 1: Kibana + Fluent Bit after Elasticsearch
+          - name: kibana-fluent
+            namespace: logging
+            gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
+            path: platform/kibana-fluent
+            wave: '1'
+  
+  template:
+    metadata:
+      name: '{{name}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: '{{wave}}'
+      labels:
+        app.kubernetes.io/component: logging
+        app.kubernetes.io/part-of: platform
+    spec:
+      project: default
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+      source:
+        repoURL: '{{gitRepo}}'
+        path: '{{path}}'
+        targetRevision: 'main'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 10s
+            factor: 2
+            maxDuration: 5m
+      ignoreDifferences:
+        - group: apps
+          kind: StatefulSet
+          jsonPointers:
+            - /spec/volumeClaimTemplates

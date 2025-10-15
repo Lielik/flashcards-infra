@@ -2,14 +2,22 @@
 ├── env
 │   ├── dev.backend.hcl
 │   └── dev.tfvars
+├── infra-file-structure.txt
 ├── main.tf
 ├── Makefile
 ├── modules
-│   ├── argocd
+│   ├── eks
 │   │   ├── main.tf
 │   │   ├── outputs.tf
 │   │   └── variables.tf
-│   ├── eks
+│   ├── eks-infra
+│   │   ├── argocd
+│   │   │   └── applicationset.yaml
+│   │   ├── certs
+│   │   │   ├── tls.crt
+│   │   │   └── tls.key
+│   │   ├── ingress-nginx
+│   │   │   └── values.yaml
 │   │   ├── main.tf
 │   │   ├── outputs.tf
 │   │   └── variables.tf
@@ -23,7 +31,6 @@
 │       └── variables.tf
 ├── outputs.tf
 ├── provider.tf
-├── README.md
 └── variables.tf
 
-7 directories, 20 files
+10 directories, 24 files

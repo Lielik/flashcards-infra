@@ -131,20 +131,50 @@ resource "kubernetes_secret" "gitops_repo_secret" {
   ]
 }
 
-resource "null_resource" "kubectl_apply" {
-  provisioner "local-exec" {
-    command = <<EOT
-      aws eks update-kubeconfig --name ${var.cluster_name} --region ${var.aws_region}
-      kubectl apply -f ${path.module}/argocd/applicationset.yaml --namespace ${local.argocd_namespace}
-    EOT
-  }
-
-  depends_on = [helm_release.argocd]
-}
-
 data "kubernetes_service" "argocd_server" {
   metadata {
     name      = "argocd-server"
     namespace = "argocd"
   }
 }
+
+# -----------------------------
+# Apply ArgoCD ApplicationSets
+# -----------------------------
+
+# Apply Apps ApplicationSet
+resource "null_resource" "kubectl_apply" {
+  provisioner "local-exec" {
+    command = <<EOT
+      aws eks update-kubeconfig --name ${var.cluster_name} --region ${var.aws_region}
+      kubectl apply -f ${path.module}/argocd/apps-applicationset.yaml --namespace ${local.argocd_namespace}
+    EOT
+  }
+
+  depends_on = [helm_release.argocd]
+}
+
+# Apply Monitoring ApplicationSet
+resource "null_resource" "apply_monitoring_applicationset" {
+  provisioner "local-exec" {
+    command = <<EOT
+      aws eks update-kubeconfig --name ${var.cluster_name} --region ${var.aws_region}
+      kubectl apply -f ${path.module}/argocd/monitoring-applicationset.yaml --namespace ${local.argocd_namespace}
+    EOT
+  }
+
+  depends_on = [time_sleep.wait_for_argocd]
+}
+
+# Apply Logging ApplicationSet
+resource "null_resource" "apply_logging_applicationset" {
+  provisioner "local-exec" {
+    command = <<EOT
+      aws eks update-kubeconfig --name ${var.cluster_name} --region ${var.aws_region}
+      kubectl apply -f ${path.module}/argocd/logging-applicationset.yaml --namespace ${local.argocd_namespace}
+    EOT
+  }
+
+  depends_on = [time_sleep.wait_for_argocd]
+}
+
