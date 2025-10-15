@@ -76,16 +76,21 @@ data "aws_iam_policy_document" "ebs_csi_driver" {
 
     principals {
       type        = "Federated"
-      identifiers = [aws_iam_openid_connect_provider.oidc_provider.arn] # or data.aws_iam_openid_connect_provider.oidc.arn if defined manually
+      identifiers = [aws_iam_openid_connect_provider.oidc_provider.arn]
     }
-
 
     actions = ["sts:AssumeRoleWithWebIdentity"]
 
     condition {
       test     = "StringEquals"
-      variable = "${replace(aws_iam_openid_connect_provider.oidc_provider.arn, "https://", "")}:sub"
+      variable = "${replace(aws_iam_openid_connect_provider.oidc_provider.url, "https://", "")}:sub"
       values   = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.oidc_provider.url, "https://", "")}:aud"
+      values   = ["sts.amazonaws.com"]
     }
   }
 }
@@ -100,42 +105,44 @@ resource "aws_iam_role_policy_attachment" "ebs_csi_driver" {
   role       = aws_iam_role.ebs_csi_driver.name
 }
 
-# Optional: only if you want to encrypt the EBS drives
-resource "aws_iam_policy" "ebs_csi_driver_encryption" {
-  name = "${aws_eks_cluster.cluster.name}-ebs-csi-driver-encryption"
+# # Optional: only if you want to encrypt the EBS drives
+# resource "aws_iam_policy" "ebs_csi_driver_encryption" {
+#   name = "${aws_eks_cluster.cluster.name}-ebs-csi-driver-encryption"
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "kms:Decrypt",
-          "kms:GenerateDataKeyWithoutPlaintext",
-          "kms:CreateGrant"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-}
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Effect = "Allow"
+#         Action = [
+#           "kms:Decrypt",
+#           "kms:GenerateDataKeyWithoutPlaintext",
+#           "kms:CreateGrant"
+#         ]
+#         Resource = "*"
+#       }
+#     ]
+#   })
+# }
 
-# Optional: only if you want to encrypt the EBS drives
-resource "aws_iam_role_policy_attachment" "ebs_csi_driver_encryption" {
-  policy_arn = aws_iam_policy.ebs_csi_driver_encryption.arn
-  role       = aws_iam_role.ebs_csi_driver.name
-}
+# # Optional: only if you want to encrypt the EBS drives
+# resource "aws_iam_role_policy_attachment" "ebs_csi_driver_encryption" {
+#   policy_arn = aws_iam_policy.ebs_csi_driver_encryption.arn
+#   role       = aws_iam_role.ebs_csi_driver.name
+# }
 
-resource "aws_eks_pod_identity_association" "ebs_csi_driver" {
-  cluster_name    = aws_eks_cluster.cluster.name
-  namespace       = "kube-system"
-  service_account = "ebs-csi-controller-sa"
-  role_arn        = aws_iam_role.ebs_csi_driver.arn
-}
+# resource "aws_eks_pod_identity_association" "ebs_csi_driver" {
+#   cluster_name    = aws_eks_cluster.cluster.name
+#   namespace       = "kube-system"
+#   service_account = "ebs-csi-controller-sa"
+#   role_arn        = aws_iam_role.ebs_csi_driver.arn
+# }
 
 resource "aws_eks_addon" "ebs_csi_driver" {
   cluster_name             = aws_eks_cluster.cluster.name
   addon_name               = "aws-ebs-csi-driver"
   addon_version            = "v1.50.1-eksbuild.1"
   service_account_role_arn = aws_iam_role.ebs_csi_driver.arn
+
+  depends_on = [aws_iam_openid_connect_provider.oidc_provider]
 }

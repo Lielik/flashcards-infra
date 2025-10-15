@@ -49,11 +49,6 @@ output "eks_cluster_endpoint" {
   value       = module.eks.cluster_endpoint
 }
 
-output "eks_cluster_ca" {
-  description = "Base64-encoded certificate authority data for the cluster"
-  value       = module.eks.cluster_ca
-}
-
 output "node_group_name" {
   description = "Name of the managed node group"
   value       = module.eks.node_group_name
@@ -101,6 +96,11 @@ output "gitops_repo_url" {
 output "gitops_repo_branch" {
   description = "Git branch being tracked by ArgoCD"
   value       = var.gitops_repo_branch
+}
+
+output "argocd_admin_password_command" {
+  description = "Command to retrieve the ArgoCD admin password from the Kubernetes secret"
+  value       = "kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d && echo"
 }
 
 # -----------------------------

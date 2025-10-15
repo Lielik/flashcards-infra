@@ -1,12 +1,6 @@
-
 output "argocd_namespace" {
   description = "Namespace where ArgoCD is installed"
   value       = local.argocd_namespace
-}
-
-output "argocd_initial_admin_password_command" {
-  description = "Command to get ArgoCD admin password"
-  value       = "kubectl -n ${local.argocd_namespace} get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d"
 }
 
 output "bootstrap_app_name" {
@@ -28,3 +22,5 @@ output "gitops_application_name" {
   description = "Name of the ArgoCD Application"
   value       = "bootstrap"
 }
+
+
