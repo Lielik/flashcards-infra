@@ -7,18 +7,22 @@ spec:
   generators:
     - list:
         elements:
-          # Wave 0: Elasticsearch first
           - name: elasticsearch
             namespace: logging
             gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
             path: platform/elasticsearch
             wave: '0'
           
-          # Wave 1: Kibana + Fluent Bit after Elasticsearch
-          - name: kibana-fluent
+          - name: fluent-bit
             namespace: logging
             gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
-            path: platform/kibana-fluent
+            path: platform/fluent-bit
+            wave: '1'
+
+          - name: kibana
+            namespace: logging
+            gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
+            path: platform/kibana
             wave: '1'
   
   template:
