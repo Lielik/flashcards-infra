@@ -39,6 +39,10 @@ spec:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
       source:
+        helm:
+          releaseName: '{{name}}'
+          valueFiles:
+            - values.yaml
         repoURL: '{{gitRepo}}'
         path: '{{path}}'
         targetRevision: 'main'
