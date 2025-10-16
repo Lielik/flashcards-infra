@@ -11,18 +11,24 @@ spec:
             namespace: logging
             gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
             path: platform/elasticsearch
+            valuesFiles:
+            - platform/elasticsearch/values.yaml
             wave: '0'
           
           - name: fluent-bit
             namespace: logging
             gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
             path: platform/fluent-bit
+            valuesFiles:
+            - platform/fluent-bit/values.yaml
             wave: '1'
 
           - name: kibana
             namespace: logging
             gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
             path: platform/kibana
+            valuesFiles:
+            - platform/kibana/values.yaml
             wave: '1'
   
   template:
@@ -30,36 +36,35 @@ spec:
       name: '{{name}}'
       annotations:
         argocd.argoproj.io/sync-wave: '{{wave}}'
-      labels:
-        app.kubernetes.io/component: logging
-        app.kubernetes.io/part-of: platform
     spec:
       project: default
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: '{{namespace}}'
       source:
+        repoURL: '{{gitRepo}}'
+        path: '{{path}}'
+        targetRevision: main
         helm:
           releaseName: '{{name}}'
           valueFiles:
             - values.yaml
-        repoURL: '{{gitRepo}}'
-        path: '{{path}}'
-        targetRevision: 'main'
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
-        retry:
-          limit: 5
-          backoff:
-            duration: 10s
-            factor: 2
-            maxDuration: 5m
-      ignoreDifferences:
-        - group: apps
-          kind: StatefulSet
-          jsonPointers:
-            - /spec/volumeClaimTemplates
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+        
+
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+          syncOptions:
+            - CreateNamespace=true
+          retry:
+            limit: 5
+            backoff:
+              duration: 10s
+              factor: 2
+              maxDuration: 5m
+        ignoreDifferences:
+          - group: apps
+            kind: StatefulSet
+            jsonPointers:
+              - /spec/volumeClaimTemplates
