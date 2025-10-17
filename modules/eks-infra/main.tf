@@ -81,9 +81,7 @@ resource "helm_release" "sealed_secrets" {
   depends_on = [kubernetes_secret.sealed_secrets_tls]
 }
 
-
-
-
+# Install NGINX Ingress Controller via Helm
 resource "helm_release" "ingress_nginx" {
   name             = "ingress-nginx"
   repository       = "https://kubernetes.github.io/ingress-nginx"
@@ -154,27 +152,27 @@ resource "null_resource" "kubectl_apply" {
   depends_on = [helm_release.argocd]
 }
 
-# Apply Monitoring ApplicationSet
-resource "null_resource" "apply_monitoring_applicationset" {
-  provisioner "local-exec" {
-    command = <<EOT
-      aws eks update-kubeconfig --name ${var.cluster_name} --region ${var.aws_region}
-      kubectl apply -f ${path.module}/argocd/monitoring-applicationset.yaml --namespace ${local.argocd_namespace}
-    EOT
-  }
+# # Apply Monitoring ApplicationSet
+# resource "null_resource" "apply_monitoring_applicationset" {
+#   provisioner "local-exec" {
+#     command = <<EOT
+#       aws eks update-kubeconfig --name ${var.cluster_name} --region ${var.aws_region}
+#       kubectl apply -f ${path.module}/argocd/monitoring-applicationset.yaml --namespace ${local.argocd_namespace}
+#     EOT
+#   }
 
-  depends_on = [time_sleep.wait_for_argocd]
-}
+#   depends_on = [time_sleep.wait_for_argocd]
+# }
 
-# Apply Logging ApplicationSet
-resource "null_resource" "apply_logging_applicationset" {
-  provisioner "local-exec" {
-    command = <<EOT
-      aws eks update-kubeconfig --name ${var.cluster_name} --region ${var.aws_region}
-      kubectl apply -f ${path.module}/argocd/logging-applicationset.yaml --namespace ${local.argocd_namespace}
-    EOT
-  }
+# # Apply Logging ApplicationSet
+# resource "null_resource" "apply_logging_applicationset" {
+#   provisioner "local-exec" {
+#     command = <<EOT
+#       aws eks update-kubeconfig --name ${var.cluster_name} --region ${var.aws_region}
+#       kubectl apply -f ${path.module}/argocd/logging-applicationset.yaml --namespace ${local.argocd_namespace}
+#     EOT
+#   }
 
-  depends_on = [time_sleep.wait_for_argocd]
-}
+#   depends_on = [time_sleep.wait_for_argocd]
+# }
 

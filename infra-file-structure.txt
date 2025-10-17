@@ -12,7 +12,9 @@
 │   │   └── variables.tf
 │   ├── eks-infra
 │   │   ├── argocd
-│   │   │   └── applicationset.yaml
+│   │   │   ├── apps-applicationset.yaml
+│   │   │   ├── logging-applicationset.yaml
+│   │   │   └── monitoring-applicationset.yaml
 │   │   ├── certs
 │   │   │   ├── tls.crt
 │   │   │   └── tls.key
@@ -33,4 +35,4 @@
 ├── provider.tf
 └── variables.tf
 
-10 directories, 24 files
+10 directories, 26 files
