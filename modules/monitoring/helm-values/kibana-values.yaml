@@ -1,0 +1,17 @@
+# kibana-values.yaml
+elasticsearchHosts: "https://elasticsearch-master.logging.svc:9200"
+
+resources:
+  requests:
+    cpu: "200m"
+    memory: "512Mi"
+  limits:
+    cpu: "500m"
+    memory: "1Gi"
+
+ingress:
+  enabled: false
+
+kibanaConfig:
+  kibana.yml: |
+    elasticsearch.ssl.verificationMode: none

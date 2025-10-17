@@ -1,0 +1,35 @@
+# fluent-bit-values.yaml
+config:
+  outputs: |
+    [OUTPUT]
+        Name es
+        Match *
+        Host elasticsearch-master.logging.svc.cluster.local
+        Port 9200
+        Logstash_Format On
+        Logstash_Prefix fluentbit
+        Retry_Limit False
+
+  filters: |
+    [FILTER]
+        Name kubernetes
+        Match kube.*
+        Merge_Log On
+        Keep_Log Off
+        K8S-Logging.Parser On
+        K8S-Logging.Exclude On
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+env:
+  - name: ELASTIC_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: elasticsearch-master-credentials
+        key: password

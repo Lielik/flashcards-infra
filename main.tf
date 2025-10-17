@@ -89,3 +89,15 @@ module "eks-infra" {
     helm       = helm
   }
 }
+
+# -----------------------------
+# Monitoring and Logging Module
+# -----------------------------
+module "monitoring" {
+  source = "./modules/monitoring"
+
+  enable_logging    = true
+  enable_monitoring = true
+
+  depends_on = [module.eks] # Wait for EKS cluster to be ready
+}
