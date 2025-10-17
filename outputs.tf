@@ -117,17 +117,8 @@ output "kubectl_get_nodes_command" {
   value       = "kubectl get nodes -o wide"
 }
 
-# -----------------------------
-# Summary Output
-# -----------------------------
-
-output "deployment_summary" {
-  description = "Summary of deployed infrastructure"
-  value = {
-    project     = var.project
-    environment = var.env
-    region      = var.region
-    cluster     = module.eks.cluster_name
-    gitops_repo = var.gitops_repo_url
-  }
+output "app_url_command" {
+  description = "Command to retrieve the application's external URL. Replace <namespace> and <service-name> with your values."
+  value       = "kubectl -n ingress-nginx get svc ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' | xargs -I{} echo http://{}"
 }
+
