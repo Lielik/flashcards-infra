@@ -14,11 +14,12 @@ resource "kubernetes_namespace" "logging" {
 
 # Deploy Prometheus stack
 resource "helm_release" "prometheus" {
-  name       = "prometheus"
-  repository = "https://prometheus-community.github.io/helm-charts"
-  chart      = "kube-prometheus-stack"
-  namespace  = kubernetes_namespace.monitoring.metadata[0].name
-  version    = "78.3.0" # Pin version for stability
+  name             = "prometheus"
+  repository       = "https://prometheus-community.github.io/helm-charts"
+  chart            = "kube-prometheus-stack"
+  create_namespace = true
+  namespace        = kubernetes_namespace.monitoring.metadata[0].name
+  version          = "78.3.2" # Pin version for stability
 
   values = [
     file("${path.module}/helm-values/prometheus-values.yaml")

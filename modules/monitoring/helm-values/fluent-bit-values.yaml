@@ -1,4 +1,3 @@
-# fluent-bit-values.yaml
 config:
   outputs: |
     [OUTPUT]
@@ -6,9 +5,15 @@ config:
         Match *
         Host elasticsearch-master.logging.svc.cluster.local
         Port 9200
+        HTTP_User elastic
+        HTTP_Passwd ${ELASTIC_PASSWORD}
+        tls On
+        tls.verify Off
         Logstash_Format On
         Logstash_Prefix fluentbit
         Retry_Limit False
+        Replace_Dots On
+        Suppress_Type_Name On
 
   filters: |
     [FILTER]

@@ -152,27 +152,39 @@ resource "null_resource" "kubectl_apply" {
   depends_on = [helm_release.argocd]
 }
 
-# # Apply Monitoring ApplicationSet
-# resource "null_resource" "apply_monitoring_applicationset" {
-#   provisioner "local-exec" {
-#     command = <<EOT
-#       aws eks update-kubeconfig --name ${var.cluster_name} --region ${var.aws_region}
-#       kubectl apply -f ${path.module}/argocd/monitoring-applicationset.yaml --namespace ${local.argocd_namespace}
-#     EOT
-#   }
+# ==========================================================
+# AWS Load Balancer Controller (Helm)
+# ==========================================================
+resource "helm_release" "aws_load_balancer_controller" {
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  namespace  = "kube-system"
+  version    = "1.9.2"
 
-#   depends_on = [time_sleep.wait_for_argocd]
-# }
+  create_namespace = false
 
-# # Apply Logging ApplicationSet
-# resource "null_resource" "apply_logging_applicationset" {
-#   provisioner "local-exec" {
-#     command = <<EOT
-#       aws eks update-kubeconfig --name ${var.cluster_name} --region ${var.aws_region}
-#       kubectl apply -f ${path.module}/argocd/logging-applicationset.yaml --namespace ${local.argocd_namespace}
-#     EOT
-#   }
-
-#   depends_on = [time_sleep.wait_for_argocd]
-# }
+  set = [
+    {
+      name  = "clusterName"
+      value = var.cluster_name
+    },
+    {
+      name  = "region"
+      value = var.aws_region
+    },
+    {
+      name  = "vpcId"
+      value = var.vpc_id
+    },
+    {
+      name  = "serviceAccount.create"
+      value = "true"
+    },
+    {
+      name  = "serviceAccount.name"
+      value = "aws-load-balancer-controller"
+    }
+  ]
+}
 

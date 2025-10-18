@@ -12,9 +12,7 @@
 │   │   └── variables.tf
 │   ├── eks-infra
 │   │   ├── argocd
-│   │   │   ├── apps-applicationset.yaml
-│   │   │   ├── logging-applicationset.yaml
-│   │   │   └── monitoring-applicationset.yaml
+│   │   │   └── apps-applicationset.yaml
 │   │   ├── certs
 │   │   │   ├── tls.crt
 │   │   │   └── tls.key
@@ -27,6 +25,15 @@
 │   │   ├── main.tf
 │   │   ├── outputs.tf
 │   │   └── variables.tf
+│   ├── monitoring
+│   │   ├── helm-values
+│   │   │   ├── elasticsearch-values.yaml
+│   │   │   ├── fluent-bit-values.yaml
+│   │   │   ├── kibana-values.yaml
+│   │   │   └── prometheus-values.yaml
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
 │   └── network
 │       ├── main.tf
 │       ├── outputs.tf
@@ -35,4 +42,4 @@
 ├── provider.tf
 └── variables.tf
 
-10 directories, 26 files
+12 directories, 31 files

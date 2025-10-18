@@ -7,6 +7,11 @@ spec:
   generators:
     - list:
         elements:
+          - name: cert-manager
+            namespace: cert-manager
+            gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
+            path: platform/cert-manager
+            wave: '0'   # Deploy first
           - name: flashcards
             namespace: apps
             gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git

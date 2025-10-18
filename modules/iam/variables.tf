@@ -17,3 +17,13 @@ variable "tags" {
   description = "Map of tags to apply to IAM resources"
   type        = map(string)
 }
+
+variable "oidc_provider_arn" {
+  description = "ARN of the EKS OIDC provider for IRSA"
+  type        = string
+}
+
+variable "oidc_provider_url" {
+  description = "URL of the EKS OIDC provider for IRSA"
+  type        = string
+}

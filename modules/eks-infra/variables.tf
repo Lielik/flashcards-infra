@@ -50,3 +50,8 @@ variable "gitops_repo_password" {
   description = "GitLab Personal Access Token (scope: read_repository)."
   sensitive   = true
 }
+
+variable "vpc_id" {
+  description = "VPC ID where the ALB controller should operate"
+  type        = string
+}

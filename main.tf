@@ -33,9 +33,11 @@ module "network" {
 
 # --- IAM ---
 module "iam" {
-  source = "./modules/iam"
-  name   = local.name_prefix
-  tags   = local.tags
+  source            = "./modules/iam"
+  name              = local.name_prefix
+  tags              = local.tags
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_url = module.eks.oidc_provider_url
 }
 
 # --- EKS ---
@@ -81,6 +83,8 @@ module "eks-infra" {
   gitops_repo_branch   = var.gitops_repo_branch
   gitops_repo_username = var.gitops_repo_username
   gitops_repo_password = var.gitops_repo_password
+
+  vpc_id = module.network.vpc_id
 
   depends_on = [module.eks]
 
