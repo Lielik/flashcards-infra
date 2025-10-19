@@ -1,8 +1,13 @@
 .
+├── aws-infrastructure-diagram.png
+├── dashboards
+│   └── monitoring
+│       ├── dashboard.png
+│       └── Infrastructure & Performance-1760817106759.json
 ├── env
 │   ├── dev.backend.hcl
 │   └── dev.tfvars
-├── infra-file-structure.txt
+├── infrarepo--file-structure.txt
 ├── main.tf
 ├── Makefile
 ├── modules
@@ -42,4 +47,4 @@
 ├── provider.tf
 └── variables.tf
 
-12 directories, 31 files
+14 directories, 34 files
