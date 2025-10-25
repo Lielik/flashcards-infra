@@ -1,3 +1,21 @@
+terraform {
+  required_providers {
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 3.0.2"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.38.0"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = "~> 0.9"
+    }
+  }
+}
+
+
 # Create monitoring namespace
 resource "kubernetes_namespace" "monitoring" {
   metadata {
@@ -12,6 +30,10 @@ resource "kubernetes_namespace" "logging" {
   }
 }
 
+resource "time_sleep" "wait_for_cluster" {
+  create_duration = "30s"
+}
+
 # Deploy Prometheus stack
 resource "helm_release" "prometheus" {
   name             = "prometheus"
@@ -21,11 +43,17 @@ resource "helm_release" "prometheus" {
   namespace        = kubernetes_namespace.monitoring.metadata[0].name
   version          = "78.3.2" # Pin version for stability
 
+  timeout = 900
+  wait    = true
+
   values = [
     file("${path.module}/helm-values/prometheus-values.yaml")
   ]
 
-  depends_on = [kubernetes_namespace.monitoring]
+  depends_on = [
+    kubernetes_namespace.monitoring,
+    time_sleep.wait_for_cluster
+  ]
 }
 
 # Deploy Elasticsearch
@@ -36,11 +64,17 @@ resource "helm_release" "elasticsearch" {
   namespace  = kubernetes_namespace.logging.metadata[0].name
   version    = "8.5.1"
 
+  timeout = 900
+  wait    = true
+
   values = [
     file("${path.module}/helm-values/elasticsearch-values.yaml")
   ]
 
-  depends_on = [kubernetes_namespace.logging]
+  depends_on = [
+    kubernetes_namespace.logging,
+    time_sleep.wait_for_cluster
+  ]
 }
 
 # Deploy Fluent Bit
@@ -50,6 +84,9 @@ resource "helm_release" "fluent_bit" {
   chart      = "fluent-bit"
   namespace  = kubernetes_namespace.logging.metadata[0].name
   version    = "0.54.0"
+
+  timeout = 600
+  wait    = true
 
   values = [
     file("${path.module}/helm-values/fluent-bit-values.yaml")
@@ -65,6 +102,9 @@ resource "helm_release" "kibana" {
   chart      = "kibana"
   namespace  = kubernetes_namespace.logging.metadata[0].name
   version    = "8.5.1"
+
+  timeout = 900
+  wait    = true
 
   values = [
     file("${path.module}/helm-values/kibana-values.yaml")

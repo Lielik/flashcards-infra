@@ -55,3 +55,8 @@ variable "vpc_id" {
   description = "VPC ID where the ALB controller should operate"
   type        = string
 }
+
+variable "alb_controller_role_arn" {
+  description = "IAM role ARN for AWS Load Balancer Controller"
+  type        = string
+}

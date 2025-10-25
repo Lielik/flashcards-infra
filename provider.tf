@@ -1,6 +1,4 @@
 # ==========================================================
-# provider.tf
-# ----------------------------------------------------------
 # - Locks versions (Terraform + providers) and defines the backend.
 # - Configures AWS, Kubernetes, Helm, and kubectl providers.
 # - Effect: Terraform can manage AWS infrastructure and Kubernetes resources.
@@ -10,9 +8,9 @@ terraform {
   backend "s3" {
     # Configuration loaded from env/*.backend.hcl
   }
-
   required_version = ">= 1.5.0"
 
+  # Lists all the provider plugins Terraform needs to download and install
   required_providers {
     # AWS provider for infrastructure provisioning
     aws = {
@@ -59,11 +57,11 @@ provider "aws" {
 # Kubernetes Provider
 # -----------------------------
 # This provider lets Terraform interact with your EKS cluster's Kubernetes API
-# It authenticates using AWS credentials and the EKS cluster information
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_ca)
 
+  # Uses the AWS CLI to generate a temporary authentication token for accessing the Kubernetes cluster
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
@@ -81,7 +79,7 @@ provider "kubernetes" {
 # -----------------------------
 # Helm Provider
 # -----------------------------
-# This provider lets Terraform install and manage Helm charts (ArgoCD)
+# Helm will connect to the same EKS cluster using the same authentication method (AWS token)
 provider "helm" {
   kubernetes = {
     host                   = module.eks.cluster_endpoint
@@ -105,6 +103,6 @@ provider "helm" {
 # -----------------------------
 # Null Provider
 # -----------------------------
-# This provider is used for resources that perform actions locally (provisioners, triggers, etc.)
+#  Enables use of null_resource blocks, which run local commands or scripts
 provider "null" {
 }

@@ -1,9 +1,6 @@
 # ==========================================================
-# variables.tf
-# ----------------------------------------------------------
 # - Declares all required inputs (no defaults): project/env/region, VPC CIDR, and EKS node group settings.
 # - These are referenced by main.tf and passed down to modules.
-# - Effect: Forces you to drive configuration from env/*.tfvars so everything is explicit and environment-specific.
 # ==========================================================
 
 
@@ -44,8 +41,8 @@ variable "vpc_cidr" {
 variable "az_count" {
   description = "Number of availability zones to span"
   type        = number
-  default     = 2
 }
+
 variable "enable_nat" {
   description = "Whether to create NAT gateway for private subnets"
   type        = bool

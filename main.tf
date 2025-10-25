@@ -17,7 +17,7 @@ locals {
 # Network Module
 # -----------------------------
 # Creates the VPC, public/private subnets, Internet Gateway,
-# NAT Gateway (optional), and route tables.
+# NAT Gateway, and route tables.
 # Provides subnet IDs for use by the platform module.
 # -----------------------------
 
@@ -25,7 +25,7 @@ module "network" {
   source     = "./modules/network"
   name       = local.name_prefix
   vpc_cidr   = var.vpc_cidr
-  az_count   = 2
+  az_count   = var.az_count
   enable_nat = true
   tags       = local.tags
 }
@@ -33,9 +33,10 @@ module "network" {
 
 # --- IAM ---
 module "iam" {
-  source            = "./modules/iam"
-  name              = local.name_prefix
-  tags              = local.tags
+  source = "./modules/iam"
+  name   = local.name_prefix
+  tags   = local.tags
+  # Allows Kubernetes pods to assume IAM roles without credentials
   oidc_provider_arn = module.eks.oidc_provider_arn
   oidc_provider_url = module.eks.oidc_provider_url
 }
@@ -86,6 +87,8 @@ module "eks-infra" {
 
   vpc_id = module.network.vpc_id
 
+  alb_controller_role_arn = module.iam.alb_controller_role_arn
+
   depends_on = [module.eks]
 
   providers = {
@@ -103,5 +106,10 @@ module "monitoring" {
   enable_logging    = true
   enable_monitoring = true
 
-  depends_on = [module.eks] # Wait for EKS cluster to be ready
+  depends_on = [module.eks-infra]
+
+  providers = {
+    kubernetes = kubernetes
+    helm       = helm
+  }
 }

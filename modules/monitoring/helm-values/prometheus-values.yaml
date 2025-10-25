@@ -13,7 +13,7 @@ kube-prometheus-stack:
             memory: 256Mi
 
     ingress:
-      enabled: false # default already``
+      enabled: false # default already false, but being explicit
 
   # Prometheus Configuration
   prometheus:

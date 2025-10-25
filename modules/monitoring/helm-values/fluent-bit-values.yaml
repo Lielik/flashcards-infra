@@ -26,11 +26,11 @@ config:
 
 resources:
   requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
     cpu: 100m
     memory: 128Mi
-  limits:
-    cpu: 200m
-    memory: 256Mi
 
 env:
   - name: ELASTIC_PASSWORD

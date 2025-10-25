@@ -1,7 +1,6 @@
 # ==========================================================
-# modules/argocd/main.tf
-# ----------------------------------------------------------
-# Installs ArgoCD via Helm and creates bootstrap Application
+# Installs ArgoCD via Helm and configures it to use the GitOps repo.
+# Also installs Sealed Secrets and NGINX Ingress Controller.
 # ==========================================================
 
 
@@ -184,6 +183,10 @@ resource "helm_release" "aws_load_balancer_controller" {
     {
       name  = "serviceAccount.name"
       value = "aws-load-balancer-controller"
+    },
+    {
+      name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+      value = var.alb_controller_role_arn
     }
   ]
 }

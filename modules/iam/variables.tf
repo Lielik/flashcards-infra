@@ -1,12 +1,6 @@
 # ==========================================================
-# modules/iam/variables.tf
-# ----------------------------------------------------------
 # Input variables for the IAM module
 # ==========================================================
-
-# -----------------------------
-# Naming & Tags
-# -----------------------------
 
 variable "name" {
   description = "Base name prefix for IAM roles (e.g., flashcards-dev)"

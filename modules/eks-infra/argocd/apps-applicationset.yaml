@@ -11,12 +11,12 @@ spec:
             namespace: cert-manager
             gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
             path: platform/cert-manager
-            wave: '0'   # Deploy first
+            wave: '0'
           - name: flashcards
             namespace: apps
             gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
             path: flashcards
-            wave: '2' # Deploy AFTER platform services
+            wave: '2' 
   template:
     metadata:
       name: '{{name}}'

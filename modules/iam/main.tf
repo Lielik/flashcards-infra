@@ -1,6 +1,4 @@
 # ==========================================================
-# modules/iam/main.tf
-# ----------------------------------------------------------
 # Defines IAM roles & policy attachments for EKS:
 #   • Control plane (cluster) IAM role
 #   • Worker nodes IAM role

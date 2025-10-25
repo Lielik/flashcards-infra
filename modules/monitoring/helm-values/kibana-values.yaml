@@ -1,4 +1,3 @@
-# kibana-values.yaml
 elasticsearchHosts: "https://elasticsearch-master.logging.svc:9200"
 
 resources:
