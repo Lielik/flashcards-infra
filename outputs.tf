@@ -88,6 +88,29 @@ output "argocd_admin_password_command" {
 }
 
 # -----------------------------
+# Static Files S3 Bucket Outputs
+# -----------------------------
+output "static_files_bucket_name" {
+  description = "Name of the S3 bucket for static files"
+  value       = data.aws_s3_bucket.static_files.id
+}
+
+output "static_files_bucket_endpoint" {
+  description = "S3 bucket regional domain name"
+  value       = data.aws_s3_bucket.static_files.bucket_regional_domain_name
+}
+
+output "static_files_website_url" {
+  description = "S3 website endpoint URL"
+  value       = "http://${data.aws_s3_bucket.static_files.bucket_regional_domain_name}"
+}
+
+output "upload_static_files_command" {
+  description = "Command to upload static files to S3"
+  value       = "aws s3 sync ./static/ s3://${data.aws_s3_bucket.static_files.id}/ --delete --region ${var.region}"
+}
+
+# -----------------------------
 # Convenience Commands
 # -----------------------------
 output "kubectl_config_command" {

@@ -12,6 +12,13 @@ locals {
   }
 }
 
+# ----------------------------------------------
+# Reference Existing S3 Bucket for Static Files
+# ----------------------------------------------
+data "aws_s3_bucket" "static_files" {
+  bucket = "${local.name_prefix}-static-files"
+}
+
 
 # -----------------------------
 # Network Module
