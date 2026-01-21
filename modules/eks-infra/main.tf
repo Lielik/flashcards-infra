@@ -105,7 +105,7 @@ resource "time_sleep" "wait_for_argocd" {
 
 resource "kubernetes_secret" "gitops_repo_secret" {
   metadata {
-    name      = "gitlab-flashcards-gitops"
+    name      = "github-flashcards-gitops"
     namespace = local.argocd_namespace
     labels = {
       # This label tells Argo CD it's a repository connection

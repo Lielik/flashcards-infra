@@ -9,28 +9,28 @@ spec:
         elements:
           - name: cert-manager
             namespace: cert-manager
-            gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
+            gitRepo: https://github.com/Lielik/flashcards-gitops.git
             path: platform/cert-manager
-            wave: '0'
+            wave: "0"
           - name: flashcards
             namespace: apps
-            gitRepo: https://gitlab.com/portfolio5815640/flashcards-gitops.git
+            gitRepo: https://github.com/Lielik/flashcards-gitops.git
             path: flashcards
-            wave: '2' 
+            wave: "2"
   template:
     metadata:
-      name: '{{name}}'
+      name: "{{name}}"
       annotations:
-        argocd.argoproj.io/sync-wave: '{{wave}}'
+        argocd.argoproj.io/sync-wave: "{{wave}}"
     spec:
       project: default
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{namespace}}'
+        namespace: "{{namespace}}"
       source:
-        repoURL: '{{gitRepo}}'
-        path: '{{path}}'
-        targetRevision: 'main'
+        repoURL: "{{gitRepo}}"
+        path: "{{path}}"
+        targetRevision: "main"
       syncPolicy:
         automated:
           prune: true
