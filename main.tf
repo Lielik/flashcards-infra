@@ -1,3 +1,4 @@
+# flashcards-infra/main.tf
 # -----------------------------
 # Local Naming & Tagging
 # -----------------------------
@@ -44,12 +45,14 @@ module "k8s_cluster" {
   control_plane_cores  = var.control_plane_cores
   control_plane_memory = var.control_plane_memory
   control_plane_ips    = var.control_plane_ips
+  control_plane_vmids  = var.control_plane_vmids
 
   # Workers
   worker_count  = var.k8s_worker_count
   worker_cores  = var.worker_cores
   worker_memory = var.worker_memory
   worker_ips    = var.worker_ips
+  worker_vmids  = var.worker_vmids
 
   # Storage
   disk_size    = var.vm_disk_size

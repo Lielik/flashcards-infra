@@ -1,4 +1,3 @@
-# ==========================================================
 # variables.tf
 # Input variable declarations (values provided in env/*.tfvars)
 # ==========================================================
@@ -156,6 +155,20 @@ variable "control_plane_ips" {
 variable "worker_ips" {
   description = "IP addresses for worker nodes"
   type        = list(string)
+}
+
+# =========================
+# Proxmox VMID allocation
+# =========================
+
+variable "control_plane_vmids" {
+  description = "Explicit VMIDs for control plane nodes"
+  type        = list(number)
+}
+
+variable "worker_vmids" {
+  description = "Explicit VMIDs for worker nodes"
+  type        = list(number)
 }
 
 # ==========================================================

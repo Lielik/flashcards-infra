@@ -10,14 +10,8 @@
 # -----------------------------
 output "ecr_repository_url" {
   description = "URL of the existing ECR repository"
-  value       = data.aws_ecr_repository.existing.repository_url
+  value       = data.aws_ecr_repository.app.repository_url
 }
-
-output "ecr_repository_arn" {
-  description = "ARN of the existing ECR repository"
-  value       = data.aws_ecr_repository.existing.arn
-}
-
 
 # Static Files S3 Bucket Outputs
 output "static_files_bucket_name" {

@@ -1,3 +1,4 @@
+# modules/proxmox-k8s-cluster/main.tf
 # This module provisions a complete Kubernetes cluster on Proxmox
 # It creates control plane and worker nodes
 
@@ -31,6 +32,7 @@ module "control_plane_nodes" {
   # VM identification
   vm_name        = "${var.cluster_name}-control-${count.index + 1}"
   vm_description = "Kubernetes control plane node ${count.index + 1}"
+  vmid           = var.control_plane_vmids[count.index]
 
   # Proxmox settings
   proxmox_node  = var.proxmox_node
@@ -67,6 +69,7 @@ module "worker_nodes" {
   # VM identification
   vm_name        = "${var.cluster_name}-worker-${count.index + 1}"
   vm_description = "Kubernetes worker node ${count.index + 1}"
+  vmid           = var.worker_vmids[count.index]
 
   # Proxmox settings
   proxmox_node  = var.proxmox_node

@@ -12,6 +12,11 @@ variable "vm_description" {
   default     = "Kubernetes node"
 }
 
+variable "vmid" {
+  description = "Proxmox VMID"
+  type        = number
+}
+
 variable "proxmox_node" {
   description = "Proxmox node name where VM will be created"
   type        = string

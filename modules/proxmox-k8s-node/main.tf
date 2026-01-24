@@ -16,6 +16,7 @@ resource "proxmox_vm_qemu" "k8s_node" {
   name        = var.vm_name
   desc        = var.vm_description
   target_node = var.proxmox_node
+  vmid        = var.vmid
 
   # Clone from template
   clone = var.template_name

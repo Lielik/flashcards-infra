@@ -90,6 +90,18 @@ variable "dns_servers" {
   type        = list(string)
 }
 
+# VMIDs
+variable "control_plane_vmids" {
+  description = "VMIDs for control plane nodes"
+  type        = list(number)
+}
+
+variable "worker_vmids" {
+  description = "VMIDs for worker nodes"
+  type        = list(number)
+}
+
+
 # SSH
 variable "ssh_user" {
   description = "SSH user"
