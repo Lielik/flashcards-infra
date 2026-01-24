@@ -12,35 +12,33 @@ terraform {
 
   # Lists all the provider plugins Terraform needs to download and install
   required_providers {
-    # AWS provider for infrastructure provisioning
+    # AWS provider for S3, ECR, Route53, CloudFront
     aws = {
       source  = "hashicorp/aws"
       version = "~> 6.16.0"
     }
 
-    # Kubernetes provider for interacting with the EKS cluster
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "2.38.0"
+    # Proxmox provider for VM management
+    proxmox = {
+      source  = "telmate/proxmox"
+      version = "3.0.1-rc4"
     }
 
-    # Helm provider for installing Helm charts (ArgoCD)
-    helm = {
-      source  = "hashicorp/helm"
-      version = "~> 3.0.2"
+    # For local-exec provisioners and triggers
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.2"
     }
 
-    # Time provider for wait/sleep resources
-    time = {
-      source  = "hashicorp/time"
-      version = "~> 0.9"
+    # For local file generation (Ansible inventory)
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.4"
     }
   }
 }
 
-# -----------------------------
 # AWS Provider
-# -----------------------------
 provider "aws" {
   region = var.region
 
@@ -53,56 +51,21 @@ provider "aws" {
   }
 }
 
-# -----------------------------
-# Kubernetes Provider
-# -----------------------------
-# This provider lets Terraform interact with your EKS cluster's Kubernetes API
-provider "kubernetes" {
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_ca)
+# Proxmox Provider (for Kubernetes VMs)
+provider "proxmox" {
+  pm_api_url          = var.proxmox_api_url
+  pm_api_token_id     = var.proxmox_api_token_id
+  pm_api_token_secret = var.proxmox_api_token_secret
+  pm_tls_insecure     = true
 
-  # Uses the AWS CLI to generate a temporary authentication token for accessing the Kubernetes cluster
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args = [
-      "eks",
-      "get-token",
-      "--cluster-name",
-      module.eks.cluster_name,
-      "--region",
-      var.region
-    ]
+  # Enable debug logging
+  pm_log_enable = true
+  pm_log_file   = "terraform-plugin-proxmox.log"
+  pm_log_levels = {
+    _default    = "debug"
+    _capturelog = ""
   }
 }
 
-# -----------------------------
-# Helm Provider
-# -----------------------------
-# Helm will connect to the same EKS cluster using the same authentication method (AWS token)
-provider "helm" {
-  kubernetes = {
-    host                   = module.eks.cluster_endpoint
-    cluster_ca_certificate = base64decode(module.eks.cluster_ca)
-    exec = {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "aws"
-      args = [
-        "eks",
-        "get-token",
-        "--cluster-name",
-        module.eks.cluster_name,
-        "--region",
-        var.region
-      ]
-    }
-  }
-}
-
-
-# -----------------------------
-# Null Provider
-# -----------------------------
-#  Enables use of null_resource blocks, which run local commands or scripts
-provider "null" {
-}
+# Null Provider - Enables use of null_resource blocks, which run local commands or scripts
+provider "null" {}

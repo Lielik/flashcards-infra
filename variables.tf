@@ -1,12 +1,11 @@
 # ==========================================================
-# - Declares all required inputs (no defaults): project/env/region, VPC CIDR, and EKS node group settings.
-# - These are referenced by main.tf and passed down to modules.
+# variables.tf
+# Input variable declarations (values provided in env/*.tfvars)
 # ==========================================================
 
-
-# -----------------------------
-# 1. Project & Environment Metadata
-# -----------------------------
+# ==========================================================
+# PROJECT CONFIGURATION
+# ==========================================================
 
 variable "project" {
   description = "Project name (used for naming & tagging)"
@@ -18,97 +17,157 @@ variable "env" {
   type        = string
 }
 
+# ==========================================================
+# AWS SERVICES (S3, ECR, Route53, CloudFront)
+# ==========================================================
+
 variable "region" {
-  description = "AWS region for resource creation"
+  description = "AWS region for AWS resources (S3, ECR, Route53)"
   type        = string
 }
 
-
-# --------------
-# 2. Networking 
-# --------------
-
-variable "vpc_cidr" {
-  description = "CIDR block for the VPC (e.g., 10.0.0.0/16)"
+variable "ecr_repository_name" {
+  description = "Name of the ECR repository for container images"
   type        = string
-
-  validation {
-    condition     = can(cidrnetmask(var.vpc_cidr))
-    error_message = "vpc_cidr must be a valid CIDR, e.g. 10.0.0.0/16"
-  }
 }
 
-variable "az_count" {
-  description = "Number of availability zones to span"
+# ==========================================================
+# PROXMOX CONFIGURATION
+# ==========================================================
+
+variable "proxmox_api_url" {
+  description = "Proxmox API URL"
+  type        = string
+}
+
+variable "proxmox_api_token_id" {
+  description = "Proxmox API token ID (format: user@realm!tokenname)"
+  type        = string
+  sensitive   = true
+}
+
+variable "proxmox_api_token_secret" {
+  description = "Proxmox API token secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "proxmox_node" {
+  description = "Proxmox node name"
+  type        = string
+}
+
+# ==========================================================
+# KUBERNETES CLUSTER CONFIGURATION
+# ==========================================================
+
+variable "k8s_cluster_name" {
+  description = "Kubernetes cluster name"
+  type        = string
+}
+
+variable "k8s_control_plane_count" {
+  description = "Number of control plane nodes"
   type        = number
 }
 
-variable "enable_nat" {
-  description = "Whether to create NAT gateway for private subnets"
-  type        = bool
-  default     = false
+variable "k8s_worker_count" {
+  description = "Number of worker nodes"
+  type        = number
 }
 
+# ==========================================================
+# VM TEMPLATE CONFIGURATION
+# ==========================================================
 
-# -----------------------------
-# 3. EKS Node Group Configuration
-# -----------------------------
+variable "vm_template_name" {
+  description = "Name of the VM template to clone"
+  type        = string
+}
 
-variable "instance_types" {
-  description = "List of EC2 instance types for your EKS nodes"
+variable "vm_template_id" {
+  description = "Template VM ID"
+  type        = number
+}
+
+# ==========================================================
+# VM RESOURCES
+# ==========================================================
+
+variable "control_plane_cores" {
+  description = "CPU cores for control plane nodes"
+  type        = number
+}
+
+variable "control_plane_memory" {
+  description = "Memory in MB for control plane nodes"
+  type        = number
+}
+
+variable "worker_cores" {
+  description = "CPU cores for worker nodes"
+  type        = number
+}
+
+variable "worker_memory" {
+  description = "Memory in MB for worker nodes"
+  type        = number
+}
+
+variable "vm_disk_size" {
+  description = "Disk size for VMs"
+  type        = string
+}
+
+variable "vm_storage" {
+  description = "Storage pool for VM disks"
+  type        = string
+}
+
+# ==========================================================
+# NETWORK CONFIGURATION
+# ==========================================================
+
+variable "network_bridge" {
+  description = "Network bridge"
+  type        = string
+}
+
+variable "network_gateway" {
+  description = "Network gateway"
+  type        = string
+}
+
+variable "network_cidr" {
+  description = "Network CIDR"
+  type        = string
+}
+
+variable "dns_servers" {
+  description = "DNS servers"
   type        = list(string)
 }
 
-variable "desired_size" {
-  description = "Desired number of worker nodes"
-  type        = number
+variable "control_plane_ips" {
+  description = "IP addresses for control plane nodes"
+  type        = list(string)
 }
 
-variable "min_size" {
-  description = "Minimum number of worker nodes for auto-scaling"
-  type        = number
+variable "worker_ips" {
+  description = "IP addresses for worker nodes"
+  type        = list(string)
 }
 
-variable "max_size" {
-  description = "Maximum number of worker nodes for auto-scaling"
-  type        = number
-}
+# ==========================================================
+# SSH CONFIGURATION
+# ==========================================================
 
-variable "capacity_type" {
-  description = "Capacity type for your node group (ON_DEMAND or SPOT)"
+variable "ssh_user" {
+  description = "SSH user for VMs"
   type        = string
 }
 
-# -----------------------------
-# 4. ECR Repository (existing)
-# -----------------------------
-
-variable "ecr_repository_name" {
-  description = "Name of an existing ECR repository to use"
+variable "ssh_public_key_file" {
+  description = "Path to SSH public key file"
   type        = string
-}
-
-# -----------------------------
-# 5. GitOps Repository Configuration
-# -----------------------------
-
-variable "gitops_repo_url" {
-  description = "GitOps repository URL (https or git)"
-  type        = string
-}
-
-variable "gitops_repo_branch" {
-  description = "Git branch to track for GitOps"
-  type        = string
-}
-
-variable "gitops_repo_password" {
-  type        = string
-  sensitive   = true
-  description = "GitLab PAT with read_repository scope."
-}
-
-variable "gitops_repo_username" {
-  type        = string
-  description = "Username for HTTPS auth (use 'oauth2' for GitLab PAT)."
 }

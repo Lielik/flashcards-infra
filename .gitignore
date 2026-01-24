@@ -1,60 +1,61 @@
-# -----------------------------
+
 # Local Terraform directories & modules
-# -----------------------------
 **/.terraform/*
 **/.terraform/*
 
-# -----------------------------
 # State & backup files (contain sensitive info)
-# -----------------------------
 *.tfstate
 *.tfstate.*
 *.tfstate.backup
 
-# -----------------------------
 # Crash/logs
-# -----------------------------
 crash.log
 crash.*.log
 
-# -----------------------------
 # Terraform plan and override files
-# -----------------------------
 *.tfplan
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
 
-# -----------------------------
 # Variable files (often contain secrets)
-# -----------------------------
 *.tfvars
 *.tfvars.json
 # but you may want to version non-sensitive defaults separately
 
-# -----------------------------
 # CLI / config files
-# -----------------------------
 .terraformrc
 terraform.rc
 
-# -----------------------------
 # IDE / editor settings
-# -----------------------------
 .vscode/
 .idea/
 *.swp
 *.swo
 .DS_Store
 
-# -----------------------------
 # OS files
-# -----------------------------
 Thumbs.db
 desktop.ini
 
+# Certificates directory
 **/certs/** 
+*.pem
+*.key
+id_rsa*
 
-
+# structure file
 infra-repo-file-structure.txt
+
+# Ansible inventory files
+**/ansible/inventory/**
+# Ansible retry files
+*.retry
+# Ansible vault password files
+*vault*.txt
+.vault_pass
+
+
+# Proxmox provider log file
+terraform-plugin-proxmox.log

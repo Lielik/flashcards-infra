@@ -12,111 +12,75 @@ locals {
   }
 }
 
-# ----------------------------------------------
-# Reference Existing S3 Bucket for Static Files
-# ----------------------------------------------
+# ==========================================================
+# AWS RESOURCES (S3, ECR, Route53)
+# ==========================================================
+
+# Reference existing S3 bucket (created in persistent/)
 data "aws_s3_bucket" "static_files" {
   bucket = "${local.name_prefix}-static-files"
 }
 
-
-# -----------------------------
-# Network Module
-# -----------------------------
-# Creates the VPC, public/private subnets, Internet Gateway,
-# NAT Gateway, and route tables.
-# Provides subnet IDs for use by the platform module.
-# -----------------------------
-
-module "network" {
-  source     = "./modules/network"
-  name       = local.name_prefix
-  vpc_cidr   = var.vpc_cidr
-  az_count   = var.az_count
-  enable_nat = true
-  tags       = local.tags
-}
-
-
-# --- IAM ---
-module "iam" {
-  source = "./modules/iam"
-  name   = local.name_prefix
-  tags   = local.tags
-  # Allows Kubernetes pods to assume IAM roles without credentials
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  oidc_provider_url = module.eks.oidc_provider_url
-}
-
-# --- EKS ---
-module "eks" {
-  source             = "./modules/eks"
-  name               = local.name_prefix
-  vpc_id             = module.network.vpc_id
-  private_subnet_ids = module.network.private_subnet_ids
-  cluster_role_arn   = module.iam.cluster_role_arn
-  node_role_arn      = module.iam.node_role_arn
-  instance_types     = var.instance_types
-  desired_size       = var.desired_size
-  min_size           = var.min_size
-  max_size           = var.max_size
-  capacity_type      = var.capacity_type
-  tags               = local.tags
-}
-
-# -----------------------------
-# Existing ECR (data source only)
-# -----------------------------
-data "aws_ecr_repository" "existing" {
+# Reference existing ECR repository (or create if needed)
+data "aws_ecr_repository" "app" {
   name = var.ecr_repository_name
 }
 
-# -----------------------------
-# infra related services for eks
-# -----------------------------
-module "eks-infra" {
-  source = "./modules/eks-infra"
 
-  name = local.name_prefix
-  tags = local.tags
+## ==========================================================
+# PROXMOX KUBERNETES CLUSTER
+# ==========================================================
 
+module "k8s_cluster" {
+  source = "./modules/proxmox-k8s-cluster"
 
-  cluster_endpoint = module.eks.cluster_endpoint
-  cluster_ca       = module.eks.cluster_ca
-  cluster_name     = module.eks.cluster_name
-  aws_region       = var.region
+  # Cluster configuration
+  cluster_name  = var.k8s_cluster_name
+  proxmox_node  = var.proxmox_node
+  template_name = var.vm_template_name
 
-  # Just point to the GitOps repo!
-  gitops_repo_url      = var.gitops_repo_url
-  gitops_repo_branch   = var.gitops_repo_branch
-  gitops_repo_username = var.gitops_repo_username
-  gitops_repo_password = var.gitops_repo_password
+  # Control plane
+  control_plane_count  = var.k8s_control_plane_count
+  control_plane_cores  = var.control_plane_cores
+  control_plane_memory = var.control_plane_memory
+  control_plane_ips    = var.control_plane_ips
 
-  vpc_id = module.network.vpc_id
+  # Workers
+  worker_count  = var.k8s_worker_count
+  worker_cores  = var.worker_cores
+  worker_memory = var.worker_memory
+  worker_ips    = var.worker_ips
 
-  alb_controller_role_arn = module.iam.alb_controller_role_arn
+  # Storage
+  disk_size    = var.vm_disk_size
+  storage_pool = var.vm_storage
 
-  depends_on = [module.eks]
+  # Network
+  network_bridge      = var.network_bridge
+  network_cidr_prefix = tonumber(split("/", var.network_cidr)[1])
+  gateway             = var.network_gateway
+  dns_servers         = var.dns_servers
 
-  providers = {
-    kubernetes = kubernetes
-    helm       = helm
-  }
+  # SSH
+  ssh_user       = var.ssh_user
+  ssh_public_key = file(var.ssh_public_key_file)
 }
 
-# -----------------------------
-# Monitoring and Logging Module
-# -----------------------------
-module "monitoring" {
-  source = "./modules/monitoring"
 
-  enable_logging    = true
-  enable_monitoring = true
+# ==========================================================
+# ANSIBLE INVENTORY GENERATION
+# ==========================================================
 
-  depends_on = [module.eks-infra]
+resource "local_file" "ansible_inventory" {
+  filename        = "${path.module}/ansible/inventory/hosts.ini"
+  file_permission = "0600"
 
-  providers = {
-    kubernetes = kubernetes
-    helm       = helm
-  }
+  content = templatefile("${path.module}/templates/ansible_inventory.tpl", {
+    control_plane_nodes = module.k8s_cluster.control_plane_nodes
+    worker_nodes        = module.k8s_cluster.worker_nodes
+    cluster_name        = var.k8s_cluster_name
+    ssh_user            = var.ssh_user
+  })
+
+  depends_on = [module.k8s_cluster]
 }
