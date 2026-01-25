@@ -7,6 +7,10 @@ ENV?=dev
 init:
 	$(TF) init -backend-config=env/dev.backend.hcl
 
+# make init u
+init u:
+	$(TF) init -upgrade -backend-config=env/dev.backend.hcl
+
 # make plan
 plan:
 	$(TF) plan -var-file=env/$(ENV).tfvars

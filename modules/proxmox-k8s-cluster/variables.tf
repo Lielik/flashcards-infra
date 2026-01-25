@@ -1,6 +1,5 @@
 # modules/proxmox-k8s-cluster/variables.tf
 # Input variables for the K8s cluster module
-
 variable "cluster_name" {
   description = "Kubernetes cluster name"
   type        = string
@@ -12,11 +11,15 @@ variable "proxmox_node" {
 }
 
 variable "template_name" {
-  description = "VM template name to clone"
+  description = "VM template name (not used in BPG provider)"
   type        = string
 }
 
-# Control plane configuration
+variable "template_id" {
+  description = "VM template ID to clone"
+  type        = number
+}
+
 variable "control_plane_count" {
   description = "Number of control plane nodes"
   type        = number
@@ -37,7 +40,6 @@ variable "control_plane_ips" {
   type        = list(string)
 }
 
-# Worker configuration
 variable "worker_count" {
   description = "Number of worker nodes"
   type        = number
@@ -58,7 +60,6 @@ variable "worker_ips" {
   type        = list(string)
 }
 
-# Storage
 variable "disk_size" {
   description = "Disk size for VMs"
   type        = string
@@ -69,7 +70,6 @@ variable "storage_pool" {
   type        = string
 }
 
-# Network
 variable "network_bridge" {
   description = "Network bridge"
   type        = string
@@ -90,19 +90,6 @@ variable "dns_servers" {
   type        = list(string)
 }
 
-# VMIDs
-variable "control_plane_vmids" {
-  description = "VMIDs for control plane nodes"
-  type        = list(number)
-}
-
-variable "worker_vmids" {
-  description = "VMIDs for worker nodes"
-  type        = list(number)
-}
-
-
-# SSH
 variable "ssh_user" {
   description = "SSH user"
   type        = string

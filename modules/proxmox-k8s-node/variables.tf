@@ -2,48 +2,43 @@
 # Input variables for the k8s-node module
 
 variable "vm_name" {
-  description = "Name of the VM"
+  description = "VM name"
   type        = string
 }
 
 variable "vm_description" {
-  description = "Description of the VM"
+  description = "VM description"
   type        = string
   default     = "Kubernetes node"
 }
 
-variable "vmid" {
-  description = "Proxmox VMID"
+variable "proxmox_node" {
+  description = "Proxmox node name"
+  type        = string
+}
+
+variable "template_id" {
+  description = "Template VM ID to clone from"
   type        = number
 }
 
-variable "proxmox_node" {
-  description = "Proxmox node name where VM will be created"
-  type        = string
-}
-
-variable "template_name" {
-  description = "Name of the template to clone"
-  type        = string
-}
-
 variable "cpu_cores" {
-  description = "Number of CPU cores"
+  description = "CPU cores"
   type        = number
 }
 
 variable "memory" {
-  description = "Memory in MB"
+  description = "Memory (MB)"
   type        = number
 }
 
 variable "disk_size" {
-  description = "Disk size (e.g., '32G')"
+  description = "Disk size (not used when cloning, disk comes from template)"
   type        = string
 }
 
 variable "storage_pool" {
-  description = "Storage pool for disks"
+  description = "Storage pool (not used when cloning)"
   type        = string
 }
 
@@ -59,12 +54,12 @@ variable "vlan_tag" {
 }
 
 variable "ip_address" {
-  description = "Static IP address for the VM"
+  description = "Static IP address"
   type        = string
 }
 
 variable "cidr_prefix" {
-  description = "CIDR prefix (e.g., 24 for /24)"
+  description = "CIDR prefix (24 for /24)"
   type        = number
   default     = 24
 }
@@ -75,7 +70,7 @@ variable "gateway" {
 }
 
 variable "dns_servers" {
-  description = "List of DNS servers"
+  description = "DNS servers"
   type        = list(string)
 }
 
@@ -85,7 +80,7 @@ variable "ssh_user" {
 }
 
 variable "ssh_public_key" {
-  description = "SSH public key (optional, uses template key if empty)"
+  description = "SSH public key"
   type        = string
   default     = ""
 }

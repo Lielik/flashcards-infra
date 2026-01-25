@@ -15,13 +15,13 @@ terraform {
     # AWS provider for S3, ECR, Route53, CloudFront
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 6.16.0"
+      version = "~> 6.28.0"
     }
 
     # Proxmox provider for VM management
     proxmox = {
-      source  = "telmate/proxmox"
-      version = "3.0.1-rc4"
+      source  = "bpg/proxmox"
+      version = "~> 0.70.0"
     }
 
     # For local-exec provisioners and triggers
@@ -33,7 +33,7 @@ terraform {
     # For local file generation (Ansible inventory)
     local = {
       source  = "hashicorp/local"
-      version = "~> 2.4"
+      version = "~> 2.6"
     }
   }
 }
@@ -53,17 +53,12 @@ provider "aws" {
 
 # Proxmox Provider (for Kubernetes VMs)
 provider "proxmox" {
-  pm_api_url          = var.proxmox_api_url
-  pm_api_token_id     = var.proxmox_api_token_id
-  pm_api_token_secret = var.proxmox_api_token_secret
-  pm_tls_insecure     = true
+  endpoint  = var.proxmox_api_url
+  api_token = "${var.proxmox_api_token_id}=${var.proxmox_api_token_secret}"
+  insecure  = true
 
-  # Enable debug logging
-  pm_log_enable = true
-  pm_log_file   = "terraform-plugin-proxmox.log"
-  pm_log_levels = {
-    _default    = "debug"
-    _capturelog = ""
+  ssh {
+    agent = true
   }
 }
 

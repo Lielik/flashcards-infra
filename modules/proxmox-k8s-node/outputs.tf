@@ -2,17 +2,17 @@
 # Outputs from the k8s-node module
 
 output "vm_id" {
-  description = "Proxmox VM ID"
-  value       = proxmox_vm_qemu.k8s_node.vmid
+  description = "VM ID"
+  value       = proxmox_virtual_environment_vm.k8s_node.vm_id
 }
 
 output "vm_name" {
   description = "VM name"
-  value       = proxmox_vm_qemu.k8s_node.name
+  value       = proxmox_virtual_environment_vm.k8s_node.name
 }
 
 output "ip_address" {
-  description = "VM IP address"
+  description = "IP address"
   value       = var.ip_address
 }
 
