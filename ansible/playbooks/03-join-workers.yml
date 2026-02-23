@@ -1,0 +1,67 @@
+---
+# Join worker nodes to the Kubernetes cluster
+
+- name: Join worker nodes to cluster
+  hosts: workers
+  become: true
+  tasks:
+    - name: Check if node is already joined
+      stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: kubelet_conf
+
+    - name: Copy join command from control plane
+      copy:
+        src: /tmp/kubernetes-join-command.sh
+        dest: /tmp/kubernetes-join-command.sh
+        mode: "0755"
+      when: not kubelet_conf.stat.exists
+
+    - name: Join worker node to cluster
+      shell: bash /tmp/kubernetes-join-command.sh
+      when: not kubelet_conf.stat.exists
+      register: join_result
+
+    - name: Display join result
+      debug:
+        var: join_result.stdout_lines
+      when: join_result.changed
+
+    - name: Wait for kubelet to be ready
+      systemd:
+        name: kubelet
+        state: started
+      when: join_result.changed
+
+- name: Verify cluster status
+  hosts: control_plane[0]
+  become: true
+  tasks:
+    - name: Wait for all nodes to be ready
+      shell: kubectl get nodes -o json
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: nodes_status
+      until: nodes_status.stdout | from_json | json_query('items[*].status.conditions[?type==`Ready`].status') | select('match', 'True') | list | length == 3
+      retries: 20
+      delay: 10
+
+    - name: Display final cluster status
+      shell: kubectl get nodes -o wide
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: final_status
+
+    - name: Show all nodes
+      debug:
+        var: final_status.stdout_lines
+
+    - name: Display cluster info
+      shell: kubectl cluster-info
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: cluster_info
+
+    - name: Show cluster info
+      debug:
+        var: cluster_info.stdout_lines

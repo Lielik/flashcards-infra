@@ -1,0 +1,32 @@
+# Master playbook - runs all installation steps in sequence
+
+- name: Install Kubernetes cluster
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Display installation start message
+      debug:
+        msg: "Starting Kubernetes installation on {{ groups['all'] | length }} nodes"
+
+- import_playbook: 01-prepare-nodes.yml
+- import_playbook: 02-init-control-plane.yml
+- import_playbook: 03-join-workers.yml
+
+- name: Installation complete
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Display success message
+      debug:
+        msg: |
+          Kubernetes cluster installation complete!
+
+          To access your cluster from your local machine:
+          1. Copy kubeconfig from control plane:
+             scp ubuntu@192.168.0.10:/home/ubuntu/.kube/config ~/.kube/config
+
+          2. Test cluster access:
+             kubectl get nodes
+             kubectl get pods -A
+
+          Your cluster is ready for application deployment!
