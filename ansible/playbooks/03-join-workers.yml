@@ -38,13 +38,23 @@
   become: true
   tasks:
     - name: Wait for all nodes to be ready
-      shell: kubectl get nodes -o json
+      shell: |
+        ready_nodes=$(kubectl get nodes --no-headers | grep -c "Ready")
+        total_nodes=$(kubectl get nodes --no-headers | wc -l)
+        if [ "$ready_nodes" -eq "$total_nodes" ] && [ "$total_nodes" -eq 3 ]; then
+          echo "All $total_nodes nodes are Ready"
+          exit 0
+        else
+          echo "Only $ready_nodes/$total_nodes nodes are Ready"
+          exit 1
+        fi
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
-      register: nodes_status
-      until: nodes_status.stdout | from_json | json_query('items[*].status.conditions[?type==`Ready`].status') | select('match', 'True') | list | length == 3
+      register: nodes_ready
+      until: nodes_ready.rc == 0
       retries: 20
       delay: 10
+      changed_when: false
 
     - name: Display final cluster status
       shell: kubectl get nodes -o wide
@@ -65,3 +75,18 @@
     - name: Show cluster info
       debug:
         var: cluster_info.stdout_lines
+
+    - name: Display success message
+      debug:
+        msg: |
+          Kubernetes cluster installation complete!
+
+          Cluster Summary:
+          - Version: v1.34.4
+          - Nodes: {{ nodes_ready.stdout }}
+          - Control Plane: flashcards-k8s-control-1
+          - Workers: flashcards-k8s-worker-1, flashcards-k8s-worker-2
+
+          Next steps:
+          1. Copy kubeconfig: scp ubuntu@192.168.0.10:/home/ubuntu/.kube/config ~/.kube/config
+          2. Test access: kubectl get nodes

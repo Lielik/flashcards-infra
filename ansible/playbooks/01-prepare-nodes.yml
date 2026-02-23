@@ -12,8 +12,6 @@
       shell: |
         swapoff -a
         sed -i '/ swap / s/^/#/' /etc/fstab
-      args:
-        warn: false
 
     - name: Load required kernel modules
       copy:
@@ -77,18 +75,20 @@
       args:
         creates: /etc/containerd/config.toml
 
-    - name: Configure containerd to use systemd cgroup driver
-      replace:
-        path: /etc/containerd/config.toml
-        regexp: "SystemdCgroup = false"
-        replace: "SystemdCgroup = true"
-
-    - name: Restart containerd
-      systemd:
-        name: containerd
-        state: restarted
-        enabled: yes
-        daemon_reload: yes
+    - name: Configure containerd for Kubernetes
+      shell: |
+        cat <<EOF > /etc/containerd/config.toml
+        version = 2
+        [plugins]
+          [plugins."io.containerd.grpc.v1.cri"]
+            [plugins."io.containerd.grpc.v1.cri".containerd]
+              [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
+                [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+                  runtime_type = "io.containerd.runc.v2"
+                  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+                    SystemdCgroup = true
+        EOF
+      notify: restart containerd
 
     # ==================== Install Kubernetes Packages ====================
 
@@ -135,3 +135,11 @@
     - name: Display preparation complete message
       debug:
         msg: "Node {{ inventory_hostname }} is ready for Kubernetes!"
+
+  handlers:
+    - name: restart containerd
+      systemd:
+        name: containerd
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
