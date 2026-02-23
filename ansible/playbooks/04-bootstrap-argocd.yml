@@ -48,15 +48,15 @@
       when: argocd_check.resources | length == 0
 
     - name: Install ArgoCD (minimal bootstrap)
-      kubernetes.core.k8s:
-        state: present
-        kubeconfig: "{{ kubeconfig_path }}"
-        src: /tmp/argocd-install.yaml
-        apply: yes
-        server_side_apply:
-          field_manager: ansible-argocd-bootstrap
-          force_conflicts: yes
+      shell: |
+        kubectl apply -n {{ argocd_namespace }} \
+          --server-side --force-conflicts \
+          -f /tmp/argocd-install.yaml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
       when: argocd_check.resources | length == 0
+      register: argocd_install_result
+      changed_when: "'created' in argocd_install_result.stdout or 'configured' in argocd_install_result.stdout"
 
     - name: Wait for ArgoCD server deployment to be ready
       kubernetes.core.k8s_info:
@@ -140,14 +140,14 @@
     - name: Display bootstrap complete message
       debug:
         msg: |
-          ✅ ArgoCD Bootstrap Complete!
+          ArgoCD Bootstrap Complete!
 
-          🎯 GitOps Control Plane Status:
+          GitOps Control Plane Status:
           --------------------------------
           ArgoCD has been installed and the root application has been applied.
           From now on, ArgoCD manages itself and all platform components.
 
-          📍 Access ArgoCD UI:
+          Access ArgoCD UI:
           --------------------
           ArgoCD is running with ClusterIP (internal only).
 
@@ -164,24 +164,24 @@
           Username: admin
           Password: {{ admin_password | default('Run: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d') }}
 
-          🔄 What Happens Next:
+          What Happens Next:
           ----------------------
           1. ArgoCD will sync applications from: {{ gitops_repo }}
           2. ArgoCD will manage itself (version, config, upgrades)
           3. Platform apps (ingress, monitoring, logging) will be deployed
           4. Your flashcards app will be deployed
 
-          🚫 Ansible is Done Here:
+          Ansible is Done Here:
           -------------------------
           - No more Ansible for ArgoCD
           - No more kubectl patches
           - Everything via Git commits → ArgoCD sync
 
-          📖 Next Steps:
+          Next Steps:
           --------------
           1. Push your gitops repo to GitHub
           2. Access ArgoCD UI via port-forward
           3. Watch ArgoCD sync applications
           4. Ingress will provide permanent access
 
-          This is true GitOps. 🚀
+          This is true GitOps.
