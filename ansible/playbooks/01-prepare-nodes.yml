@@ -125,6 +125,20 @@
         name: kubelet
         enabled: yes
 
+    # ==================== Install Python Dependencies ====================
+
+    - name: Install pip for Python 3
+      apt:
+        name: python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Install Python Kubernetes library (for Ansible k8s module)
+      pip:
+        name: kubernetes
+        state: present
+        break_system_packages: yes
+
     # ==================== Verification ====================
 
     - name: Verify containerd is running
