@@ -1,5 +1,4 @@
 ---
-# ansible/playbooks/04-bootstrap-argocd.yml
 # Minimal bootstrap of ArgoCD using declarative Kubernetes module
 # After this, ArgoCD manages everything via GitOps
 
@@ -7,9 +6,9 @@
   hosts: control_plane[0]
   become: true
   vars:
-    # Bootstrap version - used ONLY for initial installation
-    # After bootstrap, ArgoCD manages its own version via Git (argocd/argocd.yaml)
-    # To upgrade: update version in Git, not here
+    # Bootstrap version - ArgoCD version to install
+    # Ansible manages ArgoCD lifecycle
+    # To upgrade: change this version and re-run playbook
     argocd_bootstrap_version: "v3.3.2"
     argocd_namespace: "argocd"
     gitops_repo: "https://github.com/Lielik/flashcards-gitops"
@@ -37,8 +36,8 @@
       register: argocd_check
 
     # Only install if not present - bootstrap operation only
-    # After this, ArgoCD manages itself via the argocd/argocd.yaml manifest in Git
-    # Upgrades happen by updating the version in Git, not by re-running this playbook
+    # Ansible manages ArgoCD lifecycle (not ArgoCD itself)
+    # Upgrades happen by updating argocd_bootstrap_version and re-running this playbook
 
     - name: Download ArgoCD installation manifest
       get_url:
@@ -70,37 +69,20 @@
           status: "True"
         wait_timeout: 300
 
-    # ==================== Step 2: Apply Root Application ====================
+    # ==================== Step 2: Apply Root Application from Git ====================
+
+    - name: Download app-of-apps manifest from Git
+      get_url:
+        url: "{{ gitops_repo | replace('https://github.com', 'https://raw.githubusercontent.com') }}/main/bootstrap/app-of-apps.yaml"
+        dest: /tmp/app-of-apps.yaml
+        mode: "0644"
 
     - name: Apply root application (App-of-Apps)
       kubernetes.core.k8s:
         state: present
         kubeconfig: "{{ kubeconfig_path }}"
-        definition:
-          apiVersion: argoproj.io/v1alpha1
-          kind: Application
-          metadata:
-            name: root-app
-            namespace: "{{ argocd_namespace }}"
-            finalizers:
-              - resources-finalizer.argocd.argoproj.io
-          spec:
-            project: default
-            source:
-              repoURL: "{{ gitops_repo }}"
-              targetRevision: main
-              path: argocd
-            destination:
-              server: https://kubernetes.default.svc
-              namespace: "{{ argocd_namespace }}"
-            syncPolicy:
-              automated:
-                prune: true
-                selfHeal: true
-                allowEmpty: false
-              syncOptions:
-                - CreateNamespace=true
-                - ServerSideApply=true
+        src: /tmp/app-of-apps.yaml
+      register: root_app_result
 
     # ==================== Step 3: Get Access Information ====================
 
@@ -145,43 +127,30 @@
           GitOps Control Plane Status:
           --------------------------------
           ArgoCD has been installed and the root application has been applied.
-          From now on, ArgoCD manages itself and all platform components.
+          ArgoCD will now manage platform and application deployments from Git.
 
           Access ArgoCD UI:
           --------------------
           ArgoCD is running with ClusterIP (internal only).
 
-          To access the UI, use ONE of these methods:
+          To access the UI:
 
-          1. Port Forward (Recommended for initial setup):
+          Port Forward (Recommended for initial setup):
              kubectl port-forward svc/argocd-server -n argocd 8080:443
-             Then open: https://localhost:8080
-
-          2. Via Ingress (After platform deployment):
-             ArgoCD will be accessible at: https://argocd.yourdomain.com
-             (Ingress will be deployed by ArgoCD from Git)
-
-          Username: admin
-          Password: {{ admin_password | default('Run: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d') }}
+          Then open: https://localhost:8080
 
           What Happens Next:
           ----------------------
-          1. ArgoCD will sync applications from: {{ gitops_repo }}
-          2. ArgoCD will manage itself (version, config, upgrades)
-          3. Platform apps (ingress, monitoring, logging) will be deployed
-          4. Your flashcards app will be deployed
+          1. ArgoCD syncs applications from: {{ gitops_repo }}
+          2. Platform services (ingress, monitoring, logging) deploy from Git
+          3. Applications deploy from Git
 
-          Ansible is Done Here:
-          -------------------------
-          - No more Ansible for ArgoCD
-          - No more kubectl patches
-          - Everything via Git commits → ArgoCD sync
+          Management Responsibilities:
+          ------------------------------
+          - Ansible: Manages ArgoCD itself (install, upgrade)
+          - ArgoCD: Manages platform and applications from Git
 
-          Next Steps:
-          --------------
-          1. Push your gitops repo to GitHub
-          2. Access ArgoCD UI via port-forward
-          3. Watch ArgoCD sync applications
-          4. Ingress will provide permanent access
-
-          This is true GitOps.
+          To Upgrade ArgoCD:
+          ---------------------
+          1. Edit: argocd_bootstrap_version in this playbook
+          2. Run: ansible-playbook 04-bootstrap-argocd.yml
